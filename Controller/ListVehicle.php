@@ -42,7 +42,7 @@ class ListVehicle extends ListController
     protected function createViewVehicle($viewName = 'ListVehicle'): void
     {
         $this->addView($viewName, 'Vehicle', 'vehicles', 'fa-solid fa-bus-alt');
-        $this->addSearchFields($viewName, ['cod_vehicle', 'name', 'matricula']);
+        $this->addSearchFields($viewName, ['cod_vehicle', 'nombre', 'matricula']);
         $this->addOrderBy($viewName, ['nombre'], 'Nombre', 1);
         $this->addOrderBy($viewName, ['cod_vehicle'], 'code');
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
