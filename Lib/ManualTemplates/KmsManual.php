@@ -105,6 +105,11 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
         // Generar un texto para el campo observaciones
         $item['observaciones'] = date('Y-m-d H:i:s') . 'Importación desde archivo' ;
 
+        // si fueltype esta vacio, establecerlo a 1 (gasoil)
+        if (empty($item['fuel_kms.fueltype'])) {
+            $item['fuel_kms.fueltype'] = 1;
+        }
+
         if (false === $this->setModelValues($refueling, $item, 'fuel_kms.')) {
             return false;
         }
