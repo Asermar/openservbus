@@ -5,9 +5,6 @@
             <column name="hora" numcolumns="2" display="left" order="122">
                 <widget type="time" fieldname="hora" required="true"/>
             </column>
-            <column name="subsurtidor" numcolumns="2"  display="left" order="192">
-                <widget type="number" fieldname="subsurtidor" max="256" min="0" required="true"/>
-            </column>
         </group>
     </columns>
 </view>

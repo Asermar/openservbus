@@ -5,4 +5,8 @@
         <type>time</type>
         <null>NO</null>
     </column>
+    <column>
+        <name>litros</name>
+        <type>decimal(15,2)</type>
+    </column>
 </table>

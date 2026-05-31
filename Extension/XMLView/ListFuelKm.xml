@@ -9,8 +9,25 @@
                 <values source="fuel_pumps" fieldcode="idfuel_pump" fieldtitle="nombre"/>
             </widget>
         </column>
-        <column name="subsurtidor" display="left" order="126">
-            <widget type="number" fieldname="subsurtidor" max="256" min="0" required="true"/>
-        </column>
     </columns>
+    <modals>
+        <group name="upload-kms" title="import-kms" icon="fa-solid fa-file-import">
+            <column name="file" numcolumns="12" order="100">
+                <widget type="file" fieldname="kmsfile" accept=".csv,.ods,.xls,.xlsx" required="true"/>
+            </column>
+            <column name="template" numcolumns="12" order="110">
+                <widget type="select" fieldname="template" required="true">
+                    <values/>
+                </widget>
+            </column>
+            <column name="import-mode" numcolumns="12" order="120">
+                <widget type="select" fieldname="mode" translate="true" required="true">
+                    <values title="default">automatic</values>
+                    <values title="only-insert">insert</values>
+                    <values title="only-update">update</values>
+                    <values title="insert-update">insert-update</values>
+                </widget>
+            </column>
+        </group>
+    </modals>
 </view>

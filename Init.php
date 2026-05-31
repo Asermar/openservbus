@@ -3,6 +3,8 @@
 namespace FacturaScripts\Plugins\OSBFuelImport;
 
 use FacturaScripts\Core\Template\InitClass;
+use FacturaScripts\Plugins\CSVimport\Model\CSVfile;
+use FacturaScripts\Plugins\OSBFuelImport\Lib\ManualTemplates\KmsManual;
 
 /**
  * Los plugins pueden contener un archivo Init.php en el que se definen procesos a ejecutar
@@ -14,7 +16,12 @@ class Init extends InitClass
 {
     public function init(): void
     {
-        // se ejecuta cada vez que carga FacturaScripts (si este plugin está activado).
+        // Controlador de los repostajes. Agrega el botón de importación
+        $this->loadExtension(new Extension\Controller\ListFuelKm());
+
+        // Plantilla manual para importar repostajes
+        CSVfile::addManualTemplate('FuelKm', new KmsManual());
+
     }
 
     public function uninstall(): void
