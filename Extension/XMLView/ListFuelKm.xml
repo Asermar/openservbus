@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view>
+    <columns>
+        <column name="hora" display="left" order="122">
+            <widget type="time" fieldname="hora" required="true"/>
+        </column>
+        <column name="internal-fuel-dispenser" titleurl="ListFuelKm#ListFuelPump" numcolumns="6" order="124">
+            <widget type="select" fieldname="idfuel_pump" icon="fa-solid fa-thumbtack" onclick="EditFuelPump">
+                <values source="fuel_pumps" fieldcode="idfuel_pump" fieldtitle="nombre"/>
+            </widget>
+        </column>
+        <column name="subsurtidor" display="left" order="126">
+            <widget type="number" fieldname="subsurtidor" max="256" min="0" required="true"/>
+        </column>
+    </columns>
+</view>
