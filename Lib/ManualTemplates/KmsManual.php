@@ -80,6 +80,7 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
             if ($vehicle->loadWhere([Where::eq('cod_vehicle', $item['fuel_kms.codvehicle'])])) {
                 $item['fuel_kms.idvehicle'] = $vehicle->idvehicle;
             } else {
+                Tools::log('ImportacionRepostajes')->info('Vehículo no encontrado (' . $item['fuel_kms.codvehicle'] . '). ' . $this->model->path, $item);
                 return false;
             }
         }
