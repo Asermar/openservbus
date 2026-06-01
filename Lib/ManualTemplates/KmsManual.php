@@ -8,6 +8,7 @@ use FacturaScripts\Plugins\CSVimport\Lib\ManualTemplates\ManualTemplateClass;
 use FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools;
 use FacturaScripts\Plugins\OpenServBus\Model\FuelKm;
 use FacturaScripts\Plugins\OpenServBus\Model\Vehicle;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 
 class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
@@ -114,6 +115,11 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
             return false;
         }
 
-        return $refueling->save();
+        $saved = $refueling->save();
+        if (false === $saved) {
+            // Facturascripts agrega un error para los problemas que encuentra. Este lo catalogo como información porque suministra el contexto
+            Tools::log('ImportacionRepostajes')->info('No se pudo guardar el repostaje ' . $this->model->path, $item);
+        }
+        return $saved;
     }
 }
