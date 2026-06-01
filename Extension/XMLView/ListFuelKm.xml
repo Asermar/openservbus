@@ -9,6 +9,11 @@
                 <values source="fuel_pumps" fieldcode="idfuel_pump" fieldtitle="nombre"/>
             </widget>
         </column>
+        <column name="driver" order="105">
+            <widget type="select" fieldname="iddriver" required="true">
+                <values source="drivers" fieldcode="iddriver" fieldtitle="nombre"/>
+            </widget>
+        </column>
     </columns>
     <modals>
         <group name="upload-kms" title="import-kms" icon="fa-solid fa-file-import">

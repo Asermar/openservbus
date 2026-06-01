@@ -29,6 +29,7 @@ class ListFuelKm
                     'type' => 'modal'
                 ]);
             }
+
             // Filtro para ordenar los vehículos por fecha y kilometraje
             $view = $this->listView('ListFuelKm');
             if ($view) {
@@ -36,7 +37,11 @@ class ListFuelKm
                 $view->addOrderBy(['idvehicle', 'fecha', 'hora', 'km'], 'compuesto', 1);
             }
 
-       };
+            // Agregar un filtro para los conductores
+            $this->listView('ListFuelKm')
+                ->addFilterAutocomplete('ListFuelKm', 'driver', 'iddriver', 'drivers', 'iddriver', 'nombre');
+
+        };
     }
 
     public function execAfterAction(): Closure

@@ -12,7 +12,6 @@ use FacturaScripts\Core\Where;
 
 class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
 {
-
     /**
      * Aquí especificaremos todas las columnas disponibles que el usuario podrá seleccionar para vincular en su csv
      */
@@ -75,6 +74,7 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
 
         // obtener el idvehicle a partir del codvehicle y comprobar que existe
         if (isset($item['fuel_kms.codvehicle'])) {
+            $item['fuel_kms.codvehicle'] = str_pad($item['fuel_kms.codvehicle'], 3, '0', STR_PAD_LEFT);
             $vehicle = new Vehicle();
             if ($vehicle->loadWhere([Where::eq('cod_vehicle', $item['fuel_kms.codvehicle'])])) {
                 $item['fuel_kms.idvehicle'] = $vehicle->idvehicle;
@@ -94,8 +94,8 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
 
         $refueling = new FuelKm();
         if (!empty($where)) {
-            if ($refueling->loadFromCode('', $where) && $this->model->mode === CsvFileTools::INSERT_MODE ||
-                false === $refueling->loadFromCode('', $where) && $this->model->mode === CsvFileTools::UPDATE_MODE) {
+            if (($refueling->loadWhere($where) && $this->model->mode === CsvFileTools::INSERT_MODE )||
+                (false === $refueling->loadWhere($where) && $this->model->mode === CsvFileTools::UPDATE_MODE)) {
                 return false;
             }
         } elseif ($this->model->mode === CsvFileTools::UPDATE_MODE) {
@@ -105,9 +105,9 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
         // Generar un texto para el campo observaciones
         $item['observaciones'] = date('Y-m-d H:i:s') . 'Importación desde archivo' ;
 
-        // si fueltype esta vacio, establecerlo a 1 (gasoil)
-        if (empty($item['fuel_kms.fueltype'])) {
-            $item['fuel_kms.fueltype'] = 1;
+        // si idfuel_type esta vacio, establecerlo a 1 (gasoil)
+        if (empty($item['fuel_kms.idfuel_type'])) {
+            $item['fuel_kms.idfuel_type'] = 1;
         }
 
         if (false === $this->setModelValues($refueling, $item, 'fuel_kms.')) {
