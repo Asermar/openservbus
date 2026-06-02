@@ -42,6 +42,7 @@ class ListDriver extends ListController
     protected function createViewDriver($viewName = 'ListDriver'): void
     {
         $this->addView($viewName, 'Driver', 'drivers', 'fa-solid fa-user-astronaut');
+        $this->addSearchFields($viewName, ['nombre']);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
         // Filtros

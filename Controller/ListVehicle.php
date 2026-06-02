@@ -21,6 +21,7 @@
 namespace FacturaScripts\Plugins\OpenServBus\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
+use FacturaScripts\Core\Tools;
 
 class ListVehicle extends ListController
 {
@@ -42,7 +43,7 @@ class ListVehicle extends ListController
     protected function createViewVehicle($viewName = 'ListVehicle'): void
     {
         $this->addView($viewName, 'Vehicle', 'vehicles', 'fa-solid fa-bus-alt');
-        $this->addSearchFields($viewName, ['cod_vehicle', 'name', 'matricula']);
+        $this->addSearchFields($viewName, ['cod_vehicle', 'nombre', 'matricula']);
         $this->addOrderBy($viewName, ['nombre'], 'Nombre', 1);
         $this->addOrderBy($viewName, ['cod_vehicle'], 'code');
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
@@ -52,8 +53,8 @@ class ListVehicle extends ListController
         $this->addFilterCheckbox($viewName, 'solo_VehiculosNtros', 'our-vehicles', 'idempresa', 'IS NOT', null);
 
         $activo = [
-            ['code' => '1', 'description' => 'active-yes'],
-            ['code' => '0', 'description' => 'active-no'],
+            ['code' => '0', 'description' => Tools::lang()->trans('no')],
+            ['code' => '1', 'description' => Tools::lang()->trans('yes')],
         ];
         $this->addFilterSelect($viewName, 'soloActivos', 'active-all', 'activo', $activo);
 
