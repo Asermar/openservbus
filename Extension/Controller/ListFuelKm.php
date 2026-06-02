@@ -4,6 +4,7 @@ namespace FacturaScripts\Plugins\OSBFuelImport\Extension\Controller;
 
 use Closure;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\Join\FuelKm as FuelKmJoin;
 use FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools;
 
 /**
@@ -19,6 +20,16 @@ class ListFuelKm
         return function() {
             // tu código aquí
             // createViews() se ejecuta una vez realizado el createViews() del controlador.
+
+            // sustituimos el modelo de la vista por el Join para habilitar búsqueda en tablas relacionadas
+            if (isset($this->views['ListFuelKm'])) {
+                $this->views['ListFuelKm']->model = new FuelKmJoin();
+            }
+
+            $surtidores = $this->codeModel->all('fuel_pumps', 'idfuel_pump', 'nombre');
+            $this->listView('ListFuelKm')
+                ->addSearchFields(['d.nombre_conductor', 'v.nombre_vehiculo', 'fp.nombre_surtidor', 'fk.km', 'fk.litros'])
+                ->addFilterSelect('xIdFuel_Pumps', 'internal-fuel-dispenser', 'idfuel_pump', $surtidores);
 
             // import button
             if ($this->permissions->allowImport) {
