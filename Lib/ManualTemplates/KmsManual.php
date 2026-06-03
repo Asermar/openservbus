@@ -2,7 +2,6 @@
 
 namespace FacturaScripts\Plugins\OSBFuelImport\Lib\ManualTemplates;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Plugins\CSVimport\Contract\ManualTemplateInterface;
 use FacturaScripts\Plugins\CSVimport\Lib\ManualTemplates\ManualTemplateClass;
 use FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools;
@@ -107,7 +106,7 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
         // Generar un texto para el campo observaciones
         $item['observaciones'] = date('Y-m-d H:i:s') . 'Importación desde archivo' ;
 
-        // si idfuel_type esta vacio, establecerlo a 1 (gasoil)
+        // si idfuel_type está vacío, establecerlo a 1 (gasoil)
         if (empty($item['fuel_kms.idfuel_type'])) {
             $item['fuel_kms.idfuel_type'] = 1;
         }

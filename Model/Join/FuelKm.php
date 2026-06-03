@@ -28,8 +28,6 @@ class FuelKm extends JoinModel
             'fechaalta'               => 'fk.fechaalta',
             'fechabaja'               => 'fk.fechabaja',
             'fechamodificacion'       => 'fk.fechamodificacion',
-            'fecha_exportacion_cae'   => 'fk.fecha_exportacion_cae',
-            'fichero_exportacion_cae' => 'fk.fichero_exportacion_cae',
             'hora'                    => 'fk.hora',
             'iddriver'                => 'fk.iddriver',
             'idempresa'               => 'fk.idempresa',
