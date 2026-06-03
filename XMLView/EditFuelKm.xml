@@ -21,7 +21,7 @@
     <columns>
         <group name="data" numcolumns="12" valign="bottom">
             <column name="id" numcolumns="2" order="100">
-                <widget type="text" fieldname="idFuel_km" readonly="true"/>
+                <widget type="text" fieldname="idfuel_km" readonly="true"/>
             </column>
             <column name="vehicle" titleurl="ListVehicle" numcolumns="4" order="110">
                 <widget type="select" fieldname="idvehicle" icon="fa-solid fa-bus-alt" onclick="EditVehicle" required="true">
