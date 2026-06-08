@@ -5,6 +5,8 @@ namespace FacturaScripts\Plugins\OSBFuelImport\Lib\ManualTemplates;
 use FacturaScripts\Plugins\CSVimport\Contract\ManualTemplateInterface;
 use FacturaScripts\Plugins\CSVimport\Lib\ManualTemplates\ManualTemplateClass;
 use FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools;
+use FacturaScripts\Plugins\OpenServBus\Model\Driver;
+use FacturaScripts\Plugins\OpenServBus\Model\EmployeeOpen;
 use FacturaScripts\Plugins\OpenServBus\Model\FuelKm;
 use FacturaScripts\Plugins\OpenServBus\Model\Vehicle;
 use FacturaScripts\Core\Tools;
@@ -22,7 +24,7 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
             'fuel_kms.hora' => ['title' => 'hora'],
             'fuel_kms.idfuel_pump' => ['title' => 'surtidor'],
             'fuel_kms.codvehicle' => ['title' => 'vehiculo'],
-            'fuel_kms.iddriver' => ['title' => 'driver'],
+            'fuel_kms.coddriver' => ['title' => 'driver'],
             'fuel_kms.km' => ['title' => 'kilometraje'],
             'fuel_kms.litros' => ['title' => 'litros'],
             'fuel_kms.idempresa' => ['title' => 'empresa'],
@@ -54,7 +56,7 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
      */
     public function getRequiredFieldsAnd(): array
     {
-        return ['fuel_kms.fecha', 'fuel_kms.hora', 'fuel_kms.idfuel_pump', 'fuel_kms.codvehicle', 'fuel_kms.iddriver', 'fuel_kms.km', 'litros'];
+        return ['fuel_kms.fecha', 'fuel_kms.hora', 'fuel_kms.idfuel_pump', 'fuel_kms.codvehicle', 'fuel_kms.coddriver', 'fuel_kms.km', 'litros'];
     }
 
     /**
@@ -80,6 +82,24 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
                 $item['fuel_kms.idvehicle'] = $vehicle->idvehicle;
             } else {
                 Tools::log('ImportacionRepostajes')->info('Vehículo no encontrado (' . $item['fuel_kms.codvehicle'] . '). ' . $this->model->path, $item);
+                return false;
+            }
+        }
+
+        // obtener el iddriver a partir del coddriver (número → string de 4 chars con ceros)
+        if (isset($item['fuel_kms.coddriver'])) {
+            $coddriver = str_pad($item['fuel_kms.coddriver'], 4, '0', STR_PAD_LEFT);
+            $employee = new EmployeeOpen();
+            if ($employee->loadWhere([Where::eq('cod_employee', $coddriver)])) {
+                $driver = new Driver();
+                if ($driver->loadWhere([Where::eq('idemployee', $employee->idemployee)])) {
+                    $item['fuel_kms.iddriver'] = $driver->iddriver;
+                } else {
+                    Tools::log('ImportacionRepostajes')->info('Conductor no encontrado para empleado (' . $coddriver . '). ' . $this->model->path, $item);
+                    return false;
+                }
+            } else {
+                Tools::log('ImportacionRepostajes')->info('Empleado no encontrado (' . $coddriver . '). ' . $this->model->path, $item);
                 return false;
             }
         }
