@@ -30,8 +30,8 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
             'fuel_kms.idempresa' => ['title' => 'empresa'],
             'fuel_kms.idvehicle' => ['title' => 'idvehiculo'],
             'fuel_kms.observaciones' => ['title' => 'observaciones'],
-            'fuel_kms.idfuel_type' => ['title' => 'tipo de combustible']
-
+            'fuel_kms.idfuel_type' => ['title' => 'tipo de combustible'],
+            'precio' => ['title' => 'precio'],
         ];
     }
 
@@ -129,6 +129,11 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
         // si idfuel_type está vacío, establecerlo a 1 (gasoil)
         if (empty($item['fuel_kms.idfuel_type'])) {
             $item['fuel_kms.idfuel_type'] = 1;
+        }
+
+        // calcular pvp_litro a partir del precio total y los litros
+        if (!empty($item['precio']) && !empty($item['fuel_kms.litros']) && floatval($item['fuel_kms.litros']) > 0) {
+            $item['fuel_kms.pvp_litro'] = floatval($item['precio']) / floatval($item['fuel_kms.litros']);
         }
 
         if (false === $this->setModelValues($refueling, $item, 'fuel_kms.')) {
