@@ -244,7 +244,7 @@ class Service extends ModelClass
                     . ' LEFT JOIN retenciones ON (retenciones.codretencion = clientes.codretencion) '
                     . ' WHERE clientes.codcliente = "' . $this->codcliente . '" ';
 
-                $registros = self::$dataBase->select($sql);
+                $registros = static::db()->select($sql);
 
                 foreach ($registros as $fila) {
                     $cliente_RegimenIVA = $fila['regimeniva'];
@@ -341,7 +341,7 @@ class Service extends ModelClass
             . ' WHERE S1.idservice = ' . $this->idservice . ' '
             . ' AND S2.idservice = ' . $this->idservice . ';';
 
-        self::$dataBase->exec($sql);
+        static::db()->exec($sql);
     }
 
     protected function calcularImpuesto($importe, $codimpuesto, $cliente_RegimenIVA, $cliente_PorcentajeRetencion, &$total): void
@@ -359,7 +359,7 @@ class Service extends ModelClass
                     . ' FROM impuestos '
                     . ' WHERE impuestos.codimpuesto = "' . $codimpuesto . '" ';
 
-                $registros = self::$dataBase->select($sql);
+                $registros = static::db()->select($sql);
 
                 foreach ($registros as $fila) {
                     $impto_tipo = $fila['tipo'];

@@ -160,7 +160,7 @@ class ServiceRegularCombinationServ extends ModelClass
 
         $combinadoSN = 0;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             if ($fila['cantidad'] > 0) {
@@ -173,7 +173,7 @@ class ServiceRegularCombinationServ extends ModelClass
             . "SET service_regulars.combinadoSN = " . $combinadoSN . " "
             . "WHERE service_regulars.idservice_regular = " . $this->idservice_regular . ";";
 
-        self::$dataBase->exec($sql);
+        static::db()->exec($sql);
     }
 
     protected function comprobarDiasSemana(): bool
@@ -207,7 +207,7 @@ class ServiceRegularCombinationServ extends ModelClass
             . ' FROM service_regular_combinations '
             . ' WHERE service_regular_combinations.idservice_regular_combination = ' . $this->idservice_regular_combination;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             $combinacionLunes = $fila['lunes'];
@@ -230,7 +230,7 @@ class ServiceRegularCombinationServ extends ModelClass
             . ' FROM service_regulars '
             . ' WHERE service_regulars.idservice_regular = ' . $this->idservice_regular;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             $servRegularLunes = $fila['lunes'];
@@ -307,7 +307,7 @@ class ServiceRegularCombinationServ extends ModelClass
                 . ' FROM service_regular_combinations '
                 . ' WHERE service_regular_combinations.idservice_regular_combination = ' . $this->idservice_regular_combination;
 
-            $registros = self::$dataBase->select($sql);
+            $registros = static::db()->select($sql);
 
             foreach ($registros as $fila) {
                 if (empty($this->iddriver)) {
@@ -333,7 +333,7 @@ class ServiceRegularCombinationServ extends ModelClass
                     . ' FROM service_regulars '
                     . ' WHERE service_regulars.idservice_regular = ' . $this->idservice_regular;
 
-                $registros = self::$dataBase->select($sql);
+                $registros = static::db()->select($sql);
 
                 foreach ($registros as $fila) {
                     if (empty($this->iddriver)) {

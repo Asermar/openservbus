@@ -167,7 +167,7 @@ class ServiceItinerary extends ModelClass
                 . ' ORDER BY service_itineraries.idservice '
                 . ' , service_itineraries.orden ';
 
-            $registros = self::$dataBase->select($sql);
+            $registros = static::db()->select($sql);
 
             foreach ($registros as $fila) {
                 if (empty($fila['orden'])) {

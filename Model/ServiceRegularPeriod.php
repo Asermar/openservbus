@@ -214,7 +214,7 @@ class ServiceRegularPeriod extends ModelClass
         $salida_desde_nave_sn = null;
         $observaciones_periodo = null;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             $idservice_regular_period = $fila['idservice_regular_period'];
@@ -239,7 +239,7 @@ class ServiceRegularPeriod extends ModelClass
             . ", service_regulars.idservice_regular_period = " . $idservice_regular_period . " "
             . "WHERE service_regulars.idservice_regular = " . $this->idservice_regular . ";";
 
-        self::$dataBase->exec($sql);
+        static::db()->exec($sql);
     }
 
     protected function saveUpdate(array $values = []): bool

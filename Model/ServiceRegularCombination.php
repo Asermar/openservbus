@@ -187,7 +187,7 @@ class ServiceRegularCombination extends ModelClass
             . ' LEFT JOIN service_regulars on (service_regulars.idservice_regular = service_regular_combination_servs.idservice_regular) '
             . ' WHERE service_regular_combination_servs.idservice_regular_combination = ' . $this->idservice_regular_combination;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             $coincideAlgunDia = false;

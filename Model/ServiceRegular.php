@@ -285,7 +285,7 @@ class ServiceRegular extends ModelClass
                     . ' LEFT JOIN retenciones ON (retenciones.codretencion = clientes.codretencion) '
                     . ' WHERE clientes.codcliente = "' . $this->codcliente . '" ';
 
-                $registros = self::$dataBase->select($sql);
+                $registros = static::db()->select($sql);
 
                 foreach ($registros as $fila) {
                     $cliente_RegimenIVA = $fila['regimeniva'];
@@ -336,7 +336,7 @@ class ServiceRegular extends ModelClass
                     . ' FROM impuestos '
                     . ' WHERE impuestos.codimpuesto = "' . $codimpuesto . '" ';
 
-                $registros = self::$dataBase->select($sql);
+                $registros = static::db()->select($sql);
 
                 foreach ($registros as $fila) {
                     $impto_tipo = $fila['tipo'];
@@ -511,7 +511,7 @@ class ServiceRegular extends ModelClass
             . ' ORDER BY service_regular_combination_servs.idservice_regular ';
 
         $this->combinadoSN = false;
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
         foreach ($registros as $fila) {
             if ($fila['cantidad'] > 0) {
                 $this->combinadoSN = true;
@@ -552,7 +552,7 @@ class ServiceRegular extends ModelClass
         $this->salida_desde_nave_sn = null;
         $this->observaciones_periodo = null;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
         foreach ($registros as $fila) {
             $this->idservice_regular_period = $fila['idservice_regular_period'];
             $this->fecha_desde = $fila['fecha_desde'];
@@ -612,7 +612,7 @@ class ServiceRegular extends ModelClass
             . ' LEFT JOIN service_regular_combinations on (service_regular_combinations.idservice_regular_combination = service_regular_combination_servs.idservice_regular_combination) '
             . ' WHERE service_regular_combination_servs.idservice_regular = ' . $this->idservice_regular;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             $coincideAlgunDia = false;

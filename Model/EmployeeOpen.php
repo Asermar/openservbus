@@ -181,7 +181,7 @@ class EmployeeOpen extends ModelClass
             . ' FROM drivers '
             . ' WHERE drivers.idemployee = ' . $this->idemployee;
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
         foreach ($registros as $fila) {
             $this->driver_yn = 0;
             if ($fila['cuantos'] > 0) {

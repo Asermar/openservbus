@@ -20,10 +20,9 @@
 
 namespace FacturaScripts\Plugins\OpenServBus\Model;
 
-use FacturaScripts\Core\Model\Base;
-use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
+use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Tools;
 
 class Driver extends ModelClass

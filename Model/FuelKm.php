@@ -175,7 +175,7 @@ class FuelKm extends ModelClass
                 . ' WHERE drivers.iddriver = ' . $this->iddriver;
         }
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             $idempresa = $fila['idempresa'];
@@ -198,7 +198,7 @@ class FuelKm extends ModelClass
                 . ' LEFT JOIN empresas ON (empresas.idempresa = vehicles.idempresa) '
                 . ' WHERE vehicles.idvehicle = ' . $this->idvehicle;
 
-            $registros = self::$dataBase->select($sql);
+            $registros = static::db()->select($sql);
 
             foreach ($registros as $fila) {
                 $idempresa = $fila['idempresa'];

@@ -158,7 +158,7 @@ class EmployeeContract extends ModelClass
             . " LIMIT 1 ) "
             . " WHERE employees_open.idemployee = " . $this->idemployee . ";";
 
-        self::$dataBase->exec($sql);
+        static::db()->exec($sql);
     }
 
     protected function actualizar_campo_activo_enContratos_del_Empleado(): void
@@ -172,7 +172,7 @@ class EmployeeContract extends ModelClass
             . " , employee_contracts.fecha_fin DESC "
             . " LIMIT 1 ";
 
-        $contratos = self::$dataBase->select($sql);
+        $contratos = static::db()->select($sql);
 
         if (!empty($contratos)) {
             // Se ha encontrado algún contrato de ese empleado
@@ -186,7 +186,7 @@ class EmployeeContract extends ModelClass
                     . " , employee_contracts.fechabaja = null "
                     . " WHERE employee_contracts.idemployee_contract = " . $contrato['idemployee_contract'] . " ";
 
-                self::$dataBase->exec($sql);
+                static::db()->exec($sql);
 
                 // Ponemos como no activos el resto
                 $sql = " UPDATE employee_contracts "
@@ -199,7 +199,7 @@ class EmployeeContract extends ModelClass
                     . " WHERE employee_contracts.idemployee_contract <> " . $contrato['idemployee_contract'] . " "
                     . " AND employee_contracts.idemployee = " . $this->idemployee . " ";
 
-                self::$dataBase->exec($sql);
+                static::db()->exec($sql);
             }
         }
     }

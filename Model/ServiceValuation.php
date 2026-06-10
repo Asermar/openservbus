@@ -164,7 +164,7 @@ class ServiceValuation extends ModelClass
             . " AND service_valuations.activo = 1 ) "
             . " WHERE services.idservice = " . $this->idservice . ";";
 
-        self::$dataBase->exec($sql);
+        static::db()->exec($sql);
 
         $servicio = $this->getService();
         $servicio->rellenarTotal();
@@ -187,7 +187,7 @@ class ServiceValuation extends ModelClass
             . ' WHERE idservice_valuation_type = ' . $this->idservice_valuation_type
             . ' ORDER BY idservice_valuation_type ';
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
         foreach ($registros as $fila) {
             $this->nombre = $fila['nombre'];
         }
@@ -203,7 +203,7 @@ class ServiceValuation extends ModelClass
                 . ' ORDER BY service_valuations.idservice '
                 . ' , service_valuations.orden ';
 
-            $registros = self::$dataBase->select($sql);
+            $registros = static::db()->select($sql);
             foreach ($registros as $fila) {
                 if (empty($fila['orden'])) {
                     $this->orden = 5;

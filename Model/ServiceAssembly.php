@@ -261,7 +261,7 @@ class ServiceAssembly extends ModelClass
                     . ' LEFT JOIN retenciones ON (retenciones.codretencion = clientes.codretencion) '
                     . ' WHERE clientes.codcliente = "' . $this->codcliente . '" ';
 
-                $registros = self::$dataBase->select($sql);
+                $registros = static::db()->select($sql);
 
                 foreach ($registros as $fila) {
                     $cliente_RegimenIVA = $fila['regimeniva'];
@@ -314,7 +314,7 @@ class ServiceAssembly extends ModelClass
                     . ' FROM impuestos '
                     . ' WHERE impuestos.codimpuesto = "' . $codimpuesto . '" ';
 
-                $registros = self::$dataBase->select($sql);
+                $registros = static::db()->select($sql);
 
                 foreach ($registros as $fila) {
                     $impto_tipo = $fila['tipo'];
@@ -513,7 +513,7 @@ class ServiceAssembly extends ModelClass
                 . ' WHERE service_regulars.idservice_regular = ' . $this->idservice_regular . ' ';
         }
 
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             //jerofa si es un regular no se debe de actualizar si se ha modificado a mano

@@ -162,7 +162,7 @@ class Tarjeta extends ModelClass
                 . ' LEFT JOIN empresas ON (empresas.idempresa = employees_open.idempresa) '
                 . ' WHERE drivers.iddriver = ' . $this->iddriver;
         }
-        $registros = self::$dataBase->select($sql);
+        $registros = static::db()->select($sql);
 
         foreach ($registros as $fila) {
             $idempresa = $fila['idempresa'];
