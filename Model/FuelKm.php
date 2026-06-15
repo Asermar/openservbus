@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -52,9 +52,6 @@ class FuelKm extends ModelClass
     public $fechamodificacion;
 
     /** @var int */
-    public $ididentification_mean;
-
-    /** @var int */
     public $iddriver;
 
     /** @var int */
@@ -71,6 +68,9 @@ class FuelKm extends ModelClass
 
     /** @var int */
     public $idfuel_type;
+
+    /** @var int */
+    public $ididentification_mean;
 
     /** @var int */
     public $idtarjeta;
@@ -157,6 +157,56 @@ class FuelKm extends ModelClass
         return parent::test();
     }
 
+    protected function comprobar_Empleado_Conductor(): bool
+    {
+        // Exigimos que se introduzca iddriver o idemployee
+        if ((empty($this->iddriver)) && (empty($this->idemployee))) {
+            Tools::log()->error('confirm-refueling-done-employee-or-driver');
+            return false;
+        }
+
+        if ((!empty($this->iddriver)) && (!empty($this->idemployee))) {
+            Tools::log()->error('refueling-has-employee-or-driver-bat-not-both');
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function comprobar_Surtidor_Proveedor(): bool
+    {
+        // Exigimos que se introduzca idempresa o idcollaborator
+        if ((empty($this->idfuel_pump)) && (empty($this->codproveedor))) {
+            Tools::log()->error('confirm-internal-or-external-refueling');
+            return false;
+        }
+
+        if ((!empty($this->idfuel_pump)) && (!empty($this->codproveedor))) {
+            Tools::log()->error('internal-or-external-refueling-bat-not-both');
+            return false;
+        }
+
+        return true;
+    }
+
+    private function comprobar_Tarjeta__Identificacion_mean(): bool
+    {
+        // La obligatoriedad del medio de pago depende de la configuración de OpenServBus
+        if (Tools::settings('openservbus', 'obligar_medio_pago_repostaje')
+            && empty($this->idtarjeta) && empty($this->ididentification_mean)) {
+            Tools::log()->error('confirm-card-used-this-refueling');
+            return false;
+        }
+
+        // La tarjeta y el medio de identificación no pueden indicarse ambos a la vez
+        if ((!empty($this->idtarjeta)) && (!empty($this->ididentification_mean))) {
+            Tools::log()->error('refueling-use-card-or-identification-bat-not-both');
+            return false;
+        }
+
+        return true;
+    }
+
     protected function comprobarEmpresa(): void
     {
         // Comprobamos la empresa del empleado o del conductor
@@ -213,54 +263,6 @@ class FuelKm extends ModelClass
                 }
             }
         }
-    }
-
-    protected function comprobar_Empleado_Conductor(): bool
-    {
-        // Exigimos que se introduzca iddriver o idemployee
-        if ((empty($this->iddriver)) && (empty($this->idemployee))) {
-            Tools::log()->error('confirm-refueling-done-employee-or-driver');
-            return false;
-        }
-
-        if ((!empty($this->iddriver)) && (!empty($this->idemployee))) {
-            Tools::log()->error('refueling-has-employee-or-driver-bat-not-both');
-            return false;
-        }
-
-        return true;
-    }
-
-    protected function comprobar_Surtidor_Proveedor(): bool
-    {
-        // Exigimos que se introduzca idempresa o idcollaborator
-        if ((empty($this->idfuel_pump)) && (empty($this->codproveedor))) {
-            Tools::log()->error('confirm-internal-or-external-refueling');
-            return false;
-        }
-
-        if ((!empty($this->idfuel_pump)) && (!empty($this->codproveedor))) {
-            Tools::log()->error('internal-or-external-refueling-bat-not-both');
-            return false;
-        }
-
-        return true;
-    }
-
-    private function comprobar_Tarjeta__Identificacion_mean(): bool
-    {
-        // Exigimos que se introduzca idtarjeta o ididentification_mean
-        if ((empty($this->idtarjeta)) && (empty($this->ididentification_mean))) {
-            Tools::log()->error('confirm-card-used-this-refueling');
-            return false;
-        }
-
-        if ((!empty($this->idtarjeta)) && (!empty($this->ididentification_mean))) {
-            Tools::log()->error('refueling-use-card-or-identification-bat-not-both');
-            return false;
-        }
-
-        return true;
     }
 
     protected function saveUpdate(array $values = []): bool

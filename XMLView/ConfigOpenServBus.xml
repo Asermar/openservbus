@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view>
+    <columns>
+        <group name="refueling" title="refueling-kms" icon="fa-solid fa-gas-pump" numcolumns="12" valign="bottom">
+            <column name="name" display="none" order="0">
+                <widget type="text" fieldname="name" readonly="true" required="true"/>
+            </column>
+            <column name="obligar-medio-pago-repostaje" numcolumns="12" order="100">
+                <widget type="checkbox" fieldname="obligar_medio_pago_repostaje"/>
+            </column>
+        </group>
+    </columns>
+</view>

@@ -245,6 +245,7 @@
     "ratings": "Valoraciones",
     "record-is-not-active-specify-reason": "Si el registro no está activo, debe especificar el motivo.",
     "record-status": "Estado del registro",
+    "obligar-medio-pago-repostaje": "Obligar a indicar medio de pago (tarjeta o medio de identificación) en los repostajes",
     "refueled-with": "Repostado con ...",
     "refueling-date": "Repostaje - Fecha",
     "refueling-has-employee-or-driver-bat-not-both": "El repostaje o lo ha hecho un empleado o lo ha hecho un conductor, pero no de ambos.",

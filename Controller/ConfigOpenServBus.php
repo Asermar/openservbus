@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -34,18 +34,6 @@ class ConfigOpenServBus extends PanelController
         $pageData['title'] = 'OpenServBus';
         $pageData['icon'] = 'fa-solid fa-bus';
         return $pageData;
-    }
-
-    protected function createViews()
-    {
-        $this->setTemplate('EditSettings');
-        $this->createViewDocumentationType();
-        $this->createViewEmployeeContractType();
-        $this->createViewFuelType();
-        $this->createViewServiceType();
-        $this->createViewTarjetaType();
-        $this->createViewVehicleEquipamentType();
-        $this->createViewVehicleType();
     }
 
     protected function createViewDocumentationType($viewName = 'ListDocumentationType'): void
@@ -101,6 +89,19 @@ class ConfigOpenServBus extends PanelController
         $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
     }
 
+    protected function createViews()
+    {
+        $this->setTemplate('EditSettings');
+        $this->createViewSettings();
+        $this->createViewDocumentationType();
+        $this->createViewEmployeeContractType();
+        $this->createViewFuelType();
+        $this->createViewServiceType();
+        $this->createViewTarjetaType();
+        $this->createViewVehicleEquipamentType();
+        $this->createViewVehicleType();
+    }
+
     protected function createViewServiceType($viewName = 'ListServiceType'): void
     {
         $this->addListView($viewName, 'ServiceType', 'service-type', 'fa-solid fa-dolly');
@@ -114,6 +115,13 @@ class ConfigOpenServBus extends PanelController
             ['code' => '0', 'description' => 'active-no'],
         ];
         $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
+    }
+
+    protected function createViewSettings($viewName = 'ConfigOpenServBus'): void
+    {
+        $this->addEditView($viewName, 'Settings', 'general')
+            ->setSettings('btnDelete', false)
+            ->setSettings('btnNew', false);
     }
 
     protected function createViewTarjetaType($viewName = 'ListTarjetaType'): void
