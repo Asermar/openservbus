@@ -56,7 +56,7 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
      */
     public function getRequiredFieldsAnd(): array
     {
-        return ['fuel_kms.fecha', 'fuel_kms.hora', 'fuel_kms.idfuel_pump', 'fuel_kms.codvehicle', 'fuel_kms.coddriver', 'fuel_kms.km', 'litros'];
+        return ['fuel_kms.fecha', 'fuel_kms.hora', 'fuel_kms.idfuel_pump', 'fuel_kms.codvehicle', 'fuel_kms.coddriver', 'fuel_kms.km', 'fuel_kms.litros'];
     }
 
     /**
