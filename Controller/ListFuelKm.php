@@ -21,6 +21,8 @@
 namespace FacturaScripts\Plugins\OpenServBus\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
+use FacturaScripts\Core\Tools;
+use FacturaScripts\Plugins\OpenServBus\Model\FuelKm;
 
 class ListFuelKm extends ListController
 {
@@ -67,6 +69,26 @@ class ListFuelKm extends ListController
             ['code' => '0', 'description' => 'full-tank-no'],
         ];
         $this->addFilterSelect($viewName, 'esDepositoLleno', 'full-tank-all', 'deposito_lleno', $esDepositoLleno);
+
+        // botón para recalcular las estadísticas (km recorridos y consumo) de todos los repostajes
+        $this->addButton($viewName, [
+            'action' => 'recalcular-estadisticas',
+            'color' => 'warning',
+            'icon' => 'fa-solid fa-calculator',
+            'label' => 'recalculate-statistics',
+            'type' => 'action',
+            'confirm' => true,
+        ]);
+    }
+
+    protected function execAfterAction($action)
+    {
+        if ($action === 'recalcular-estadisticas') {
+            $total = FuelKm::recalcularTodas();
+            Tools::log()->notice('statistics-recalculated', ['%count%' => $total]);
+        }
+
+        return parent::execAfterAction($action);
     }
 
     protected function createViewFuel_pump($viewName = 'ListFuelPump'): void

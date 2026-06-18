@@ -30,16 +30,22 @@
         <column name="date" display="right" order="120">
             <widget type="date" fieldname="fecha"/>
         </column>
-        <column name="kms" display="right" order="130">
-            <widget type="text" fieldname="km"/>
-        </column>
-        <column name="fuel-type" order="140">
+        <column name="fuel-type" order="130">
             <widget type="select" fieldname="idfuel_type">
                 <values source="fuel_types" fieldcode="idfuel_type" fieldtitle="nombre"/>
             </widget>
         </column>
-        <column name="liters" display="right" order="150">
+        <column name="kms" display="right" order="135">
+            <widget type="text" fieldname="km"/>
+        </column>
+        <column name="km-traveled" display="right" order="140">
+            <widget type="number" fieldname="km_recorridos" decimal="0"/>
+        </column>
+        <column name="liters" display="right" order="145">
             <widget type="text" fieldname="litros"/>
+        </column>
+        <column name="consumption" display="right" order="150">
+            <widget type="number" fieldname="consumo" decimal="2"/>
         </column>
         <column name="full-tank" display="center" order="160">
             <widget type="checkbox" fieldname="deposito_lleno"/>

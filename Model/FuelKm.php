@@ -24,6 +24,7 @@ use FacturaScripts\Core\Session;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 
 class FuelKm extends ModelClass
 {
@@ -35,6 +36,9 @@ class FuelKm extends ModelClass
 
     /** @var string */
     public $codproveedor;
+
+    /** @var float */
+    public $consumo;
 
     /** @var bool */
     public $deposito_lleno;
@@ -64,6 +68,9 @@ class FuelKm extends ModelClass
     public $idfuel_km;
 
     /** @var int */
+    public $idfuel_km_anterior;
+
+    /** @var int */
     public $idfuel_pump;
 
     /** @var int */
@@ -80,6 +87,9 @@ class FuelKm extends ModelClass
 
     /** @var int */
     public $km;
+
+    /** @var int */
+    public $km_recorridos;
 
     /** @var int */
     public $litros;
@@ -101,6 +111,9 @@ class FuelKm extends ModelClass
 
     /** @var string */
     public $usermodificacion;
+
+    /** Evita la cascada infinita al recalcular repostajes vecinos. */
+    private static $recalculando = false;
 
     public function clear(): void
     {
@@ -154,6 +167,10 @@ class FuelKm extends ModelClass
         
         $this->observaciones = Tools::noHtml($this->observaciones);
         $this->motivobaja = Tools::noHtml($this->motivobaja);
+
+        // calculamos las estadísticas (km recorridos y consumo) antes de guardar
+        $this->calcularEstadisticas();
+
         return parent::test();
     }
 
@@ -270,5 +287,172 @@ class FuelKm extends ModelClass
         $this->usermodificacion = Session::get('user')->nick ?? null;
         $this->fechamodificacion = Tools::dateTime();
         return parent::saveUpdate();
+    }
+
+    protected function onInsert(): void
+    {
+        parent::onInsert();
+        $this->recalcularVecinos();
+    }
+
+    protected function onUpdate(): void
+    {
+        parent::onUpdate();
+        $this->recalcularVecinos();
+    }
+
+    protected function onDelete(): void
+    {
+        parent::onDelete();
+        $this->recalcularVecinos();
+    }
+
+    /**
+     * Devuelve el repostaje del mismo vehículo con fecha inmediatamente anterior.
+     */
+    protected function repostajeAnterior(): ?FuelKm
+    {
+        if (empty($this->idvehicle) || empty($this->fecha)) {
+            return null;
+        }
+
+        $where = [
+            Where::eq('idvehicle', $this->idvehicle),
+            Where::lt('fecha', $this->fecha),
+        ];
+        if (!empty($this->idfuel_km)) {
+            $where[] = Where::notEq('idfuel_km', $this->idfuel_km);
+        }
+
+        return static::findWhere($where, ['fecha' => 'DESC', 'idfuel_km' => 'DESC']);
+    }
+
+    /**
+     * Devuelve el repostaje del mismo vehículo con fecha inmediatamente posterior.
+     */
+    protected function repostajeSiguiente(): ?FuelKm
+    {
+        if (empty($this->idvehicle) || empty($this->fecha)) {
+            return null;
+        }
+
+        $where = [
+            Where::eq('idvehicle', $this->idvehicle),
+            Where::gt('fecha', $this->fecha),
+        ];
+        if (!empty($this->idfuel_km)) {
+            $where[] = Where::notEq('idfuel_km', $this->idfuel_km);
+        }
+
+        return static::findWhere($where, ['fecha' => 'ASC', 'idfuel_km' => 'ASC']);
+    }
+
+    /**
+     * Fija el enlace al repostaje anterior y calcula km recorridos y consumo (L/100km).
+     */
+    protected function calcularEstadisticas(): void
+    {
+        $anterior = $this->repostajeAnterior();
+        $this->idfuel_km_anterior = $anterior->idfuel_km ?? null;
+
+        if ($anterior !== null && $this->km !== null && $anterior->km !== null) {
+            $recorridos = (int)$this->km - (int)$anterior->km;
+            $this->km_recorridos = $recorridos;
+            $this->consumo = ($recorridos > 0 && !empty($this->litros))
+                ? round((float)$this->litros / $recorridos * 100, 2)
+                : null;
+            return;
+        }
+
+        $this->km_recorridos = null;
+        $this->consumo = null;
+    }
+
+    /**
+     * Tras guardar o eliminar, recalcula los repostajes directamente afectados:
+     * el siguiente cronológico y el que tenía a este como anterior.
+     */
+    protected function recalcularVecinos(): void
+    {
+        if (self::$recalculando) {
+            return;
+        }
+
+        self::$recalculando = true;
+
+        $afectados = [];
+
+        $siguiente = $this->repostajeSiguiente();
+        if ($siguiente !== null) {
+            $afectados[$siguiente->idfuel_km] = $siguiente;
+        }
+
+        if (!empty($this->idfuel_km)) {
+            $referenciando = static::findWhere([Where::eq('idfuel_km_anterior', $this->idfuel_km)]);
+            if ($referenciando !== null) {
+                $afectados[$referenciando->idfuel_km] = $referenciando;
+            }
+        }
+
+        foreach ($afectados as $repostaje) {
+            $repostaje->save();
+        }
+
+        self::$recalculando = false;
+    }
+
+    /**
+     * Recalcula la cadena completa de estadísticas de un vehículo escribiendo
+     * únicamente las columnas calculadas (sin tocar metadatos ni disparar hooks).
+     * Devuelve el número de repostajes actualizados.
+     */
+    public static function recalcularCadenaVehiculo(int $idvehicle): int
+    {
+        $repostajes = static::all(
+            [Where::eq('idvehicle', $idvehicle)],
+            ['fecha' => 'ASC', 'idfuel_km' => 'ASC']
+        );
+
+        $actualizados = 0;
+        $anterior = null;
+        foreach ($repostajes as $repostaje) {
+            $idAnterior = $anterior->idfuel_km ?? null;
+            $recorridos = null;
+            $consumo = null;
+            if ($anterior !== null && $repostaje->km !== null && $anterior->km !== null) {
+                $recorridos = (int)$repostaje->km - (int)$anterior->km;
+                $consumo = ($recorridos > 0 && !empty($repostaje->litros))
+                    ? round((float)$repostaje->litros / $recorridos * 100, 2)
+                    : null;
+            }
+
+            static::table()
+                ->whereEq('idfuel_km', $repostaje->idfuel_km)
+                ->update([
+                    'idfuel_km_anterior' => $idAnterior,
+                    'km_recorridos' => $recorridos,
+                    'consumo' => $consumo,
+                ]);
+            $actualizados++;
+
+            $anterior = $repostaje;
+        }
+
+        return $actualizados;
+    }
+
+    /**
+     * Recalcula la cadena de estadísticas de todos los vehículos con repostajes.
+     * Devuelve el número total de repostajes actualizados.
+     */
+    public static function recalcularTodas(): int
+    {
+        $total = 0;
+        $sql = 'SELECT DISTINCT idvehicle FROM ' . static::tableName() . ' WHERE idvehicle IS NOT NULL';
+        foreach (static::db()->select($sql) as $fila) {
+            $total += static::recalcularCadenaVehiculo((int)$fila['idvehicle']);
+        }
+
+        return $total;
     }
 }

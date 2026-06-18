@@ -21,6 +21,7 @@
 namespace FacturaScripts\Plugins\OpenServBus;
 
 use FacturaScripts\Core\Base\DataBase;
+use FacturaScripts\Core\Cache;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Dinamic\Model\Role;
@@ -50,6 +51,10 @@ final class Init extends InitClass
         $this->deleteColumnFromTable();
         $this->changeNameEmployee();
         $this->createRoleForPlugin();
+
+        // limpiamos la caché para que se regenere la lista de campos de los modelos
+        // tras sincronizar columnas nuevas (p.ej. estadísticas de repostajes)
+        Cache::clear();
     }
 
     protected function changeNameEmployee(): void
