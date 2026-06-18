@@ -174,9 +174,12 @@ final class Init extends InitClass
     {
         // eliminamos las columnas deseadas de las tablas seleccionadas
         // al actualizar a la versión 3.0
+        // NOTA: 'drivers' NO se incluye: drivers.nombre es una columna vigente
+        // (definida en Table/drivers.xml y poblada por Driver::test()) que usa el
+        // Join de OSBFuelImport en ListFuelKm. Borrarla rompe ese listado.
         $dataBase = new DataBase();
         $columns = ['nombre'];
-        $tables = ['employee_contracts', 'employees_attendance_management_yn', 'drivers', 'helpers', 'collaborators'];
+        $tables = ['employee_contracts', 'employees_attendance_management_yn', 'helpers', 'collaborators'];
         foreach ($tables as $table) {
             // preguntamos si existe la tabla
             if (false === $dataBase->tableExists($table)) {
