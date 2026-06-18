@@ -106,7 +106,7 @@ class FuelKm extends ModelClass
     {
         parent::clear();
         $this->activo = true;
-        $this->fechaalta = Tools::date();
+        $this->fechaalta = Tools::dateTime();
         $this->useralta = Session::get('user')->nick ?? null;
     }
 
@@ -268,7 +268,7 @@ class FuelKm extends ModelClass
     protected function saveUpdate(array $values = []): bool
     {
         $this->usermodificacion = Session::get('user')->nick ?? null;
-        $this->fechamodificacion = Tools::date();
+        $this->fechamodificacion = Tools::dateTime();
         return parent::saveUpdate();
     }
 }
