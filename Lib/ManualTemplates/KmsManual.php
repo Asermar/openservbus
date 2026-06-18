@@ -131,6 +131,9 @@ class KmsManual extends ManualTemplateClass implements ManualTemplateInterface
             $item['fuel_kms.idfuel_type'] = 1;
         }
 
+        // establecer la condición de depósito lleno a "sí"
+        $item['fuel_kms.deposito_lleno'] = true;
+
         // calcular pvp_litro a partir del precio total y los litros
         if (!empty($item['precio']) && !empty($item['fuel_kms.litros']) && floatval($item['fuel_kms.litros']) > 0) {
             $item['fuel_kms.pvp_litro'] = floatval($item['precio']) / floatval($item['fuel_kms.litros']);
