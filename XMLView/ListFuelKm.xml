@@ -42,7 +42,7 @@
             <widget type="number" fieldname="km_recorridos" decimal="0"/>
         </column>
         <column name="liters" display="right" order="145">
-            <widget type="text" fieldname="litros"/>
+            <widget type="number" fieldname="litros" decimal="2"/>
         </column>
         <column name="consumption" display="right" order="150">
             <widget type="number" fieldname="consumo" decimal="2"/>

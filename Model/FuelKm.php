@@ -91,7 +91,7 @@ class FuelKm extends ModelClass
     /** @var int */
     public $km_recorridos;
 
-    /** @var int */
+    /** @var float */
     public $litros;
 
     /** @var string */
