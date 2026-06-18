@@ -70,6 +70,9 @@ class ListFuelKm extends ListController
         ];
         $this->addFilterSelect($viewName, 'esDepositoLleno', 'full-tank-all', 'deposito_lleno', $esDepositoLleno);
 
+        // filtro para mostrar solo repostajes con km recorridos negativos
+        $this->addFilterCheckbox($viewName, 'kmsRecorridosNegativos', 'km-traveled-negative', 'km_recorridos', '<', 0);
+
         // botón para recalcular las estadísticas (km recorridos y consumo) de todos los repostajes
         $this->addButton($viewName, [
             'action' => 'recalcular-estadisticas',
