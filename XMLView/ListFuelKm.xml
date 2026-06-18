@@ -36,7 +36,7 @@
             </widget>
         </column>
         <column name="kms" display="right" order="135">
-            <widget type="text" fieldname="km"/>
+            <widget type="number" fieldname="km" decimal="0"/>
         </column>
         <column name="km-traveled" display="right" order="140">
             <widget type="number" fieldname="km_recorridos" decimal="0"/>

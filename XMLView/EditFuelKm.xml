@@ -32,7 +32,7 @@
                 <widget type="date" fieldname="fecha" required="true"/>
             </column>
             <column name="kms" numcolumns="3" order="130">
-                <widget type="text" fieldname="km"/>
+                <widget type="number" fieldname="km" decimal="0"/>
             </column>
             <column name="km-traveled" display="right" numcolumns="3" order="135">
                 <widget type="number" fieldname="km_recorridos" decimal="0" readonly="true"/>
