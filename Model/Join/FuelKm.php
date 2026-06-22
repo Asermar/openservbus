@@ -2,7 +2,7 @@
 
 namespace FacturaScripts\Plugins\OSBFuelImport\Model\Join;
 
-use FacturaScripts\Dinamic\Model\Base\JoinModel;
+use FacturaScripts\Core\Template\JoinModel;
 use FacturaScripts\Dinamic\Model\FuelKm as parentModel;
 
 class FuelKm extends JoinModel
@@ -13,7 +13,7 @@ class FuelKm extends JoinModel
         $this->setMasterModel(new parentModel());
     }
 
-    public function primaryColumnValue()
+    public function id()
     {
         return $this->idfuel_km;
     }
