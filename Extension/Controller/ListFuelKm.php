@@ -33,7 +33,7 @@ class ListFuelKm
 
             // import button
             if ($this->permissions->allowImport) {
-                $this->addButton('ListFuelKm', [
+                $this->tab('ListFuelKm')->addButton([
                     'action' => 'upload-kms',
                     'icon' => 'fa-solid fa-file-import',
                     'label' => 'import',
@@ -130,17 +130,17 @@ class ListFuelKm
     {
         return function () {
             // obtenemos la ruta completa del archivo
-            $fileName = $this->request->get('import-filename');
+            $fileName = $this->request->queryOrInput('import-filename');
             $filePath = \FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools::getFilePath($fileName);
             if (empty($filePath)) {
                 return true;
             }
 
             // se ha elegido crea nueva plantilla
-            $template = $this->request->get('import-template', \FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools::NEW_TEMPLATE);
+            $template = $this->request->queryOrInput('import-template', \FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools::NEW_TEMPLATE);
             if ($template === \FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools::NEW_TEMPLATE) {
                 $newCsvFile = \FacturaScripts\Plugins\CSVimport\Model\CSVfile::newTemplate($fileName, 'FuelKm');
-                $newCsvFile->mode = $this->request->get('import-mode');
+                $newCsvFile->mode = $this->request->queryOrInput('import-mode');
                 if ($newCsvFile->save()) {
                     $this->redirect($newCsvFile->url());
                 }
@@ -160,7 +160,7 @@ class ListFuelKm
 
                 // creamos una nueva plantilla
                 $newCsvFile = \FacturaScripts\Plugins\CSVimport\Model\CSVfile::newTemplate($fileName, 'FuelKm');
-                $newCsvFile->mode = $this->request->get('import-mode');
+                $newCsvFile->mode = $this->request->queryOrInput('import-mode');
                 if ($newCsvFile->save()) {
                     $this->redirect($newCsvFile->url(), 1);
                 }
@@ -168,9 +168,9 @@ class ListFuelKm
             }
 
             // procesamos el archivo
-            $mode = $this->request->get('import-mode');
-            $offset = (int)$this->request->get('import-offset', 0);
-            $saveLines = (int)$this->request->get('save-lines', 0);
+            $mode = $this->request->queryOrInput('import-mode');
+            $offset = (int)$this->request->queryOrInput('import-offset', 0);
+            $saveLines = (int)$this->request->queryOrInput('save-lines', 0);
             $result = $templateModel->getProfile($offset, $saveLines, $filePath, $mode)->import();
             if ($result['offset'] > 0 && $result['offset'] < $result['total']) {
                 Tools::log()->notice(
