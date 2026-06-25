@@ -40,7 +40,7 @@ class EditEmployeeOpen extends EditController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         parent::createViews();
         $this->createViewEmployeeContract();

@@ -34,7 +34,7 @@ class ListServiceAssembly extends ListController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewAssembly();
     }

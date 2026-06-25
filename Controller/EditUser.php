@@ -25,7 +25,7 @@ use FacturaScripts\Core\Where;
 
 class EditUser extends ParentController
 {
-    protected function createViews()
+    protected function createViews(): void
     {
         parent::createViews();
         $this->addListView('ListEmployeeOpen', 'EmployeeOpen', 'employees-with-this-user');

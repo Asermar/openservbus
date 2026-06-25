@@ -33,7 +33,7 @@ class ListEmployeeAttendanceManagement extends ListController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewEmployeeAttendanceManagement();
         $this->createViewAbsenceReason();

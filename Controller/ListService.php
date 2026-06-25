@@ -33,7 +33,7 @@ class ListService extends ListController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewService();
         $this->createViewServiceItinerary();

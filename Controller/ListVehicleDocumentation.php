@@ -33,7 +33,7 @@ class ListVehicleDocumentation extends ListController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewVehicleDocumentation();
         $this->createViewEmployeeDocumentation();

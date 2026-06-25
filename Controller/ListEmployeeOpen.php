@@ -33,7 +33,7 @@ class ListEmployeeOpen extends ListController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewEmployee();
         $this->createViewEmployeeContract();

@@ -34,7 +34,7 @@ class ListServiceRegular extends ListController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewServiceRegular();
         $this->createViewServiceRegularCombination();

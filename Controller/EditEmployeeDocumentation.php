@@ -42,7 +42,7 @@ class EditEmployeeDocumentation extends EditController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         parent::createViews();
         $this->setTabsPosition('top');

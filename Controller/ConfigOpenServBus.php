@@ -89,7 +89,7 @@ class ConfigOpenServBus extends PanelController
         $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->setTemplate('EditSettings');
         $this->createViewSettings();

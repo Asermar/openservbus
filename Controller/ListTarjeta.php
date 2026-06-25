@@ -33,7 +33,7 @@ class ListTarjeta extends ListController
         return $pageData;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewTarjeta();
     }
