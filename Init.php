@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez            <carlos@facturascripts.com>
- * Copyright (C) 2021      Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez            <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026      Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -38,6 +38,15 @@ final class Init extends InitClass
         // se ejecuta cada vez que carga FacturaScripts (si este plugin está activado).
         $this->loadExtension(new Extension\Controller\EditRole());
         $this->loadExtension(new Extension\Controller\EditUser());
+
+        // importación de repostajes desde CSV: solo si el plugin CSVimport está presente
+        // (declarado como "compatible" en facturascripts.ini).
+        if (class_exists('\FacturaScripts\Plugins\CSVimport\Model\CSVfile')) {
+            \FacturaScripts\Plugins\CSVimport\Model\CSVfile::addManualTemplate(
+                'FuelKm',
+                new \FacturaScripts\Plugins\OpenServBus\Lib\ManualTemplates\KmsManual()
+            );
+        }
     }
 
     public function uninstall(): void

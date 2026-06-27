@@ -35,6 +35,11 @@
         <type>timestamp</type>
     </column>
     <column>
+        <name>hora</name>
+        <type>time</type>
+        <null>NO</null>
+    </column>
+    <column>
         <name>ididentification_mean</name>
         <type>integer</type>
     </column>
