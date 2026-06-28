@@ -12,3 +12,6 @@ package-lock.json
 CLAUDE.md
 /.claude
 .codex
+
+# KDE / Dolphin
+.directory
