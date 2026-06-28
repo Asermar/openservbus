@@ -3,6 +3,7 @@
  * This file is part of OpenServBus plugin for FacturaScripts
  * Copyright (C) 2021-2026 Carlos Garcia Gomez            <carlos@facturascripts.com>
  * Copyright (C) 2021-2026      Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2026           Alexis Serafin <alexis@okodex.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,6 +25,8 @@ use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Cache;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Core\Template\InitClass;
+use FacturaScripts\Core\WorkQueue;
+use FacturaScripts\Dinamic\Lib\Maintenance;
 use FacturaScripts\Dinamic\Model\Role;
 use FacturaScripts\Dinamic\Model\RoleAccess;
 use FacturaScripts\Dinamic\Model\Service;
@@ -47,6 +50,18 @@ final class Init extends InitClass
                 new \FacturaScripts\Plugins\OpenServBus\Lib\ManualTemplates\KmsManual()
             );
         }
+
+        // área de mantenimiento: registramos el proceso de recálculo de estadísticas
+        // de repostajes y su worker (se ejecuta en segundo plano al pulsar el botón).
+        WorkQueue::addWorker('RecalculateFuelKmStats', 'OpenServBus.recalculate-fuelkm-stats');
+        Maintenance::addJob([
+            'event' => 'OpenServBus.recalculate-fuelkm-stats',
+            'label' => 'recalculate-statistics',
+            'help' => 'recalculate-statistics-help',
+            'icon' => 'fa-solid fa-calculator',
+            'color' => 'warning',
+            'confirm' => true,
+        ]);
     }
 
     public function uninstall(): void

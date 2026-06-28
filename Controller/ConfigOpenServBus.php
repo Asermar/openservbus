@@ -3,6 +3,7 @@
  * This file is part of OpenServBus plugin for FacturaScripts
  * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2026 Alexis Serafin <alexis@okodex.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,12 +22,22 @@
 namespace FacturaScripts\Plugins\OpenServBus\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\PanelController;
+use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\WorkQueue;
+use FacturaScripts\Dinamic\Lib\Maintenance;
 
 /**
  * @author Daniel Fernández Giménez <contacto@danielfg.es>
+ * @author Alexis Serafin <alexis@okodex.com>
  */
 class ConfigOpenServBus extends PanelController
 {
+    /** Lista de procesos de mantenimiento registrados (para la plantilla de la pestaña). */
+    public function getMaintenanceJobs(): array
+    {
+        return Maintenance::all();
+    }
+
     public function getPageData(): array
     {
         $pageData = parent::getPageData();
@@ -89,10 +100,16 @@ class ConfigOpenServBus extends PanelController
         $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
     }
 
+    protected function createViewMaintenance($viewName = 'maintenance'): void
+    {
+        $this->addHtmlView($viewName, 'Maintenance', 'Settings', 'maintenance', 'fa-solid fa-screwdriver-wrench');
+    }
+
     protected function createViews(): void
     {
         $this->setTemplate('EditSettings');
         $this->createViewSettings();
+        $this->createViewMaintenance();
         $this->createViewDocumentationType();
         $this->createViewEmployeeContractType();
         $this->createViewFuelType();
@@ -173,6 +190,28 @@ class ConfigOpenServBus extends PanelController
             ['code' => '0', 'description' => 'active-no'],
         ];
         $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
+    }
+
+    /** Encola en la cola de trabajos el proceso de mantenimiento solicitado, validándolo contra el registro. */
+    private function enqueueJobAction(): void
+    {
+        $event = $this->request->request->get('job', '');
+        if (false === Maintenance::has($event)) {
+            Tools::log()->warning('record-not-found');
+            return;
+        }
+
+        WorkQueue::send($event, Tools::date());
+        Tools::log()->notice('maintenance-job-queued');
+    }
+
+    protected function execPreviousAction($action)
+    {
+        if ($action === 'enqueue-job') {
+            $this->enqueueJobAction();
+        }
+
+        return parent::execPreviousAction($action);
     }
 
     protected function loadData($viewName, $view)

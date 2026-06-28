@@ -3,6 +3,7 @@
  * This file is part of OpenServBus plugin for FacturaScripts
  * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2026 Alexis Serafin <alexis@okodex.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -26,7 +27,6 @@ use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Join\FuelKm as FuelKmJoin;
 use FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools;
 use FacturaScripts\Plugins\CSVimport\Model\CSVfile;
-use FacturaScripts\Plugins\OpenServBus\Model\FuelKm;
 
 class ListFuelKm extends ListController
 {
@@ -87,15 +87,9 @@ class ListFuelKm extends ListController
         // filtro para mostrar solo repostajes con km recorridos negativos
         $this->addFilterCheckbox($viewName, 'kmsRecorridosNegativos', 'km-traveled-negative', 'km_recorridos', '<', 0);
 
-        // botón para recalcular las estadísticas (km recorridos y consumo) de todos los repostajes
-        $this->addButton($viewName, [
-            'action' => 'recalcular-estadisticas',
-            'color' => 'warning',
-            'icon' => 'fa-solid fa-calculator',
-            'label' => 'recalculate-statistics',
-            'type' => 'action',
-            'confirm' => true,
-        ]);
+        // el recálculo de estadísticas de todos los repostajes se ha trasladado a la
+        // pestaña "Mantenimiento" de ConfigOpenServBus, donde se ejecuta en segundo
+        // plano mediante la cola de trabajos.
     }
 
     /**
@@ -153,11 +147,6 @@ class ListFuelKm extends ListController
 
     protected function execAfterAction($action)
     {
-        if ($action === 'recalcular-estadisticas') {
-            $total = FuelKm::recalcularTodas();
-            Tools::log()->notice('statistics-recalculated', ['%count%' => $total]);
-        }
-
         if ($this->csvImportAvailable()) {
             switch ($action) {
                 case 'import-kms':
