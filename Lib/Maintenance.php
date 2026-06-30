@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2026 Alexis Serafin <alexis@okodex.com>
+ * Copyright (C) 2026 Alexis Serafín (Asermar) <alexis@okodex.com>
  */
 
 namespace FacturaScripts\Plugins\OpenServBus\Lib;

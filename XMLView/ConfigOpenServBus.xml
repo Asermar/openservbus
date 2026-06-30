@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (C) 2026 Alexis Serafín (Asermar) <alexis@okodex.com>
+-->
 <view>
     <columns>
         <group name="refueling" title="refueling-kms" icon="fa-solid fa-gas-pump" numcolumns="12" valign="bottom">
