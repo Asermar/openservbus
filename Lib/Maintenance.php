@@ -18,7 +18,7 @@ namespace FacturaScripts\Plugins\OpenServBus\Lib;
  *   1) Maintenance::addJob([...]) en el Init del plugin
  *   2) un Worker que escuche el evento indicado en 'event'
  *
- * @author Alexis Serafin <alexis@okodex.com>
+ * @author Alexis Serafín (Asermar) <alexis@okodex.com>
  */
 class Maintenance
 {

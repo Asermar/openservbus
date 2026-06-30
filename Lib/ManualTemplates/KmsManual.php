@@ -2,6 +2,7 @@
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
  * Copyright (C) 2026 Alexis Serafín (Asermar) <alexis@okodex.com>
+ * @author Alexis Serafín (Asermar) <alexis@okodex.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as

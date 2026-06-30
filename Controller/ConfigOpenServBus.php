@@ -28,7 +28,7 @@ use FacturaScripts\Dinamic\Lib\Maintenance;
 
 /**
  * @author Daniel Fernández Giménez <contacto@danielfg.es>
- * @author Alexis Serafin <alexis@okodex.com>
+ * @author Alexis Serafín (Asermar) <alexis@okodex.com>
  */
 class ConfigOpenServBus extends PanelController
 {
