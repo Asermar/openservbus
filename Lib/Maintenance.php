@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2026 Alexis Serafín (Asermar) <alexis@okodex.com>
+ * Copyright (C) 2026 Oko Digital Experts, S.L.L. (Okodex)
  */
 
 namespace FacturaScripts\Plugins\OpenServBus\Lib;
@@ -18,7 +18,7 @@ namespace FacturaScripts\Plugins\OpenServBus\Lib;
  *   1) Maintenance::addJob([...]) en el Init del plugin
  *   2) un Worker que escuche el evento indicado en 'event'
  *
- * @author Alexis Serafín (Asermar) <alexis@okodex.com>
+ * @author Alexis Serafín <alexis@okodex.com>
  */
 class Maintenance
 {
