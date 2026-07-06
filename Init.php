@@ -24,6 +24,7 @@ namespace FacturaScripts\Plugins\OpenServBus;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Cache;
+use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Core\WorkQueue;
@@ -43,9 +44,9 @@ final class Init extends InitClass
         $this->loadExtension(new Extension\Controller\EditRole());
         $this->loadExtension(new Extension\Controller\EditUser());
 
-        // importación de repostajes desde CSV: solo si el plugin CSVimport está presente
+        // importación de repostajes desde CSV: solo si el plugin CSVimport está activado
         // (declarado como "compatible" en facturascripts.ini).
-        if (class_exists('\FacturaScripts\Plugins\CSVimport\Model\CSVfile')) {
+        if (Plugins::isEnabled('CSVimport')) {
             \FacturaScripts\Plugins\CSVimport\Model\CSVfile::addManualTemplate(
                 'FuelKm',
                 new \FacturaScripts\Plugins\OpenServBus\Lib\ManualTemplates\KmsManual()

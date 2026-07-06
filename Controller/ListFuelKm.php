@@ -23,6 +23,7 @@
 namespace FacturaScripts\Plugins\OpenServBus\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
+use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Join\FuelKm as FuelKmJoin;
@@ -138,12 +139,12 @@ class ListFuelKm extends ListController
 
     /**
      * Indica si el plugin CSVimport está disponible. La importación de repostajes
-     * depende de él (campo "compatible" en facturascripts.ini); si no está instalado
+     * depende de él (campo "compatible" en facturascripts.ini); si no está activado
      * la funcionalidad simplemente no se activa.
      */
     protected function csvImportAvailable(): bool
     {
-        return class_exists('\FacturaScripts\Plugins\CSVimport\Lib\CsvFileTools');
+        return Plugins::isEnabled('CSVimport');
     }
 
     protected function execAfterAction($action)
