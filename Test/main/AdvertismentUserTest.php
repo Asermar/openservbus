@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2025-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -25,19 +25,21 @@ use FacturaScripts\Plugins\OpenServBus\Model\AdvertismentUser;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @description
+ * ## Avisos a usuarios
+ *
+ * Valida el modelo `AdvertismentUser` (avisos mostrados a usuarios): al **dar de baja**
+ * un aviso (`activo = false`) es obligatorio indicar el **motivo de la baja**.
+ */
 final class AdvertismentUserTest extends TestCase
 {
     use LogErrorsTrait;
 
-    protected function setUp(): void
-    {
-        // instanciamos al usuario para que se cree la tabla y no de error de foreign key
-        new User();
-    }
-
     /**
-     * comprobamos que al dar de baja hay que
-     * pasar el motivo de la baja obligatoriamente
+     * @description
+     * Al dar de baja un aviso sin motivo, `save()` falla y registra el error
+     * `record-is-not-active-specify-reason`. Con motivo, el guardado es válido.
      */
     public function testRequiereMotivoBaja(): void
     {
@@ -51,11 +53,14 @@ final class AdvertismentUserTest extends TestCase
         // damos de baja
         $advertismentUser->activo = false;
 
-        // compboramos
+        // comprobamos
         $this->assertFalse($advertismentUser->save());
-        $this->assertEquals('record-is-not-active-specify-reason', MiniLog::read()[0]['original']);
+        $this->assertEquals(
+            'record-is-not-active-specify-reason',
+            MiniLog::read('', ['critical', 'error', 'warning'])[0]['original']
+        );
 
-        // ahora pasamo el motivo de la baja
+        // ahora pasamos el motivo de la baja
 
         // borramos los mensajes anteriores
         MiniLog::clear();
@@ -63,9 +68,16 @@ final class AdvertismentUserTest extends TestCase
         $advertismentUser->activo = false;
         $advertismentUser->motivobaja = 'test-motivo-baja';
 
-        // compboramos
+        // comprobamos: guardado válido, sin errores/avisos (ignoramos las trazas SQL
+        // del canal database que FS registra en modo debug).
         $this->assertTrue($advertismentUser->save());
-        $this->assertEmpty(MiniLog::read());
+        $this->assertEmpty(MiniLog::read('', ['critical', 'error', 'warning']));
+    }
+
+    protected function setUp(): void
+    {
+        // instanciamos al usuario para que se cree la tabla y no de error de foreign key
+        new User();
     }
 
     protected function tearDown(): void
