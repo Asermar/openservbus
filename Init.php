@@ -44,6 +44,17 @@ final class Init extends InitClass
         $this->loadExtension(new Extension\Controller\EditRole());
         $this->loadExtension(new Extension\Controller\EditUser());
 
+        // integración con BuscadorAcumulado: enriquecemos el título de nuestras
+        // listas con el sufijo "||count||total||campo:Etiqueta" que ese plugin usa
+        // para los contadores "X de Y" y el selector por campo (él solo lo genera
+        // para sus vistas relacionadas y omite las listas standalone como las
+        // nuestras). Se registra solo si el plugin está activo (declarado como
+        // "compatible" en facturascripts.ini) para no enganchar el pipe a todos
+        // los List* cuando no puede funcionar.
+        if (Plugins::isEnabled('BuscadorAcumulado')) {
+            $this->loadExtension(new Extension\Controller\ListController());
+        }
+
         // importación de repostajes desde CSV: solo si el plugin CSVimport está activado
         // (declarado como "compatible" en facturascripts.ini).
         if (Plugins::isEnabled('CSVimport')) {
