@@ -130,7 +130,7 @@ final class Init extends InitClass
             'EditAbsenceReason',
             'EditAdvertismentUser',
             'EditCollaborator',
-            'EditDepartment',
+            'EditTourDepartment',
             'EditDocumentationType',
             'EditDriver',
             'EditEmployeeAttendanceManagement',

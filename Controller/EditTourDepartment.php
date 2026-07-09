@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -22,11 +22,11 @@ namespace FacturaScripts\Plugins\OpenServBus\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 
-class EditDepartment extends EditController
+class EditTourDepartment extends EditController
 {
     public function getModelClassName(): string
     {
-        return 'Department';
+        return 'TourDepartment';
     }
 
     public function getPageData(): array
