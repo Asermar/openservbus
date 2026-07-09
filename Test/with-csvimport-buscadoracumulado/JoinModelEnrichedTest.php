@@ -34,16 +34,17 @@ use ReflectionMethod;
  * OpenServBus,CSVimport,BuscadorAcumulado).
  *
  * @description
- * ## Sufijo de búsqueda acumulada — exclusión de JoinModel (importación de repostajes)
+ * ## Sufijo de búsqueda acumulada — JoinModel (importación de repostajes)
  *
  * Con `CSVimport` activo, `ListFuelKm::createViewImportKms()` sustituye el modelo de la vista
  * `ListFuelKm` por el `JoinModel` `FacturaScripts\Dinamic\Model\Join\FuelKm` (para poder buscar en
- * las tablas relacionadas). `AccumulatedSearchTitle::shouldEnrich()` excluye expresamente los
- * `JoinModel` (no exponen `primaryColumn()`/`tableName()`), así que, aunque `BuscadorAcumulado`
- * esté activo, esa vista **no** debe recibir el sufijo de contadores. Otra vista de la misma
- * suite con un modelo normal de OpenServBus (`ListFuelPump`) sí debe enriquecerse.
+ * las tablas relacionadas: conductor, vehículo y surtidor). Esa vista debe recibir el sufijo de
+ * contadores `||count||total||campo:Etiqueta...` Y su selector de campo debe ofrecer los cinco
+ * searchFields, incluidos los que NO tienen columna visible en el XMLView (`d.nombre_conductor`,
+ * `v.nombre_vehiculo`, `fp.nombre_surtidor`), que BuscadorAcumulado por sí solo no puede ofrecer
+ * porque arma el selector desde columnas: los completa la extensión de OpenServBus.
  */
-final class JoinModelNotEnrichedTest extends TestCase
+final class JoinModelEnrichedTest extends TestCase
 {
     use DefaultSettingsTrait;
     use LogErrorsTrait;
@@ -56,9 +57,8 @@ final class JoinModelNotEnrichedTest extends TestCase
     }
 
     /**
-     * En el mismo escenario (CSVimport + BuscadorAcumulado), otra vista de ListFuelKm con un
-     * modelo normal de OpenServBus (ListFuelPump -> FuelPump) sí debe enriquecerse con el sufijo
-     * de contadores, confirmando que la exclusión es específica de los JoinModel.
+     * Otra vista de ListFuelKm con un modelo normal de OpenServBus (ListFuelPump -> FuelPump)
+     * también debe enriquecerse con el sufijo de contadores.
      */
     public function testOtraVistaConModeloNormalSiSeEnriquece(): void
     {
@@ -112,10 +112,11 @@ final class JoinModelNotEnrichedTest extends TestCase
 
     /**
      * La vista ListFuelKm queda con un modelo JoinModel (sustituido por createViewImportKms al
-     * estar CSVimport activo) y, pese a que BuscadorAcumulado está activo, su título no debe
-     * llevar el sufijo "||count||total..." porque shouldEnrich() excluye los JoinModel.
+     * estar CSVimport activo). Tras el pipe loadData su título debe llevar el sufijo de contadores
+     * y el selector debe incluir los cinco searchFields, incluidos los tres campos calculados sin
+     * columna visible.
      */
-    public function testVistaConJoinModelNoSeEnriquece(): void
+    public function testVistaConJoinModelSeEnriqueceConTodosSusCampos(): void
     {
         $controller = new ListFuelKm('ListFuelKm');
         $controller->permissions = new ControllerPermissions();
@@ -146,16 +147,26 @@ final class JoinModelNotEnrichedTest extends TestCase
 
         $this->assertTrue($controller->pipeFalse('loadData', $joinViewName, $joinView));
 
-        $this->assertSame(
+        $this->assertStringStartsWith(
             $before,
             $joinView->title,
-            'El pipe loadData no debe modificar el título de una vista cuyo modelo es un JoinModel'
+            'El título enriquecido debe conservar el título original como prefijo'
         );
-        $this->assertStringNotContainsString(
+        $this->assertStringContainsString(
             '||',
             $joinView->title,
-            'Una vista con JoinModel no debe llevar el sufijo de contadores de BuscadorAcumulado'
+            'Una vista con JoinModel de OpenServBus sí debe llevar el sufijo de contadores'
         );
+
+        // selector de campo: los cinco searchFields deben aparecer como pares "searchField:Etiqueta",
+        // usando la clave COMPLETA (prefijada) para que el WHERE sea SQL válido en el Join.
+        foreach (['fk.km:', 'fk.litros:', 'd.nombre_conductor:', 'v.nombre_vehiculo:', 'fp.nombre_surtidor:'] as $pair) {
+            $this->assertStringContainsString(
+                '||' . $pair,
+                $joinView->title,
+                'Falta el campo "' . $pair . '" en el selector del JoinModel de ListFuelKm'
+            );
+        }
     }
 
     protected function tearDown(): void

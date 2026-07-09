@@ -92,9 +92,14 @@ final class AccumulatedSearchPresentTest extends TestCase
     }
 
     /**
-     * Aislamiento de scope: una lista del CORE ajena a OpenServBus (ListCliente) no debe verse
-     * afectada por esta extensión, aunque el pipe loadData esté enganchado globalmente a todos
-     * los List* del sistema.
+     * Aislamiento de scope: la extensión de OpenServBus no debe reclamar el enriquecido de una lista
+     * del CORE ajena a OpenServBus (ListCliente). Esto se comprueba a nivel del helper
+     * `shouldEnrich()`, que es la garantía que controla OpenServBus.
+     *
+     * NOTA: no se comprueba el título tras el pipe. Desde BuscadorAcumulado v2.61 su propio pipe
+     * enriquece TODA vista con searchFields (incluidas las del core), de forma incondicional; ese
+     * sufijo lo pone BuscadorAcumulado (plugin de terceros), no OpenServBus, y queda fuera de nuestro
+     * control, así que no lo aseveramos aquí.
      */
     public function testListaDelCoreNoSeVeAfectada(): void
     {
@@ -111,27 +116,15 @@ final class AccumulatedSearchPresentTest extends TestCase
 
         $view = $controller->views['ListCliente'];
 
-        // primero comprobamos con el helper: el modelo de ListCliente (Cliente) no es de OpenServBus.
+        // el modelo de ListCliente (Cliente) no es de OpenServBus: la extensión no lo enriquece.
         $this->assertFalse(
             AccumulatedSearchTitle::shouldEnrich($view),
             'shouldEnrich() debe rechazar la vista de Cliente por no pertenecer a OpenServBus'
         );
 
+        // el pipe no debe lanzar excepción al procesar una lista del core.
         $view->count = 1;
-        $before = $view->title;
-
         $this->assertTrue($controller->pipeFalse('loadData', 'ListCliente', $view));
-
-        $this->assertSame(
-            $before,
-            $view->title,
-            'La extensión de OpenServBus no debe modificar el título de una lista del core'
-        );
-        $this->assertStringNotContainsString(
-            '||',
-            $view->title,
-            'La lista de Cliente no debe llevar el sufijo de contadores de OpenServBus'
-        );
     }
 
     /**

@@ -36,10 +36,11 @@ use PHPUnit\Framework\TestCase;
  * consume ese plugin:
  *
  * - `buildSuffix()`: formato exacto del sufijo, con y sin selector de campo.
- * - `fieldLabels()`: filtra columnas visibles cuyo campo esté en `searchFields`, sin duplicados
- *   y respetando el orden de las columnas.
- * - `shouldEnrich()`: solo autoriza el enriquecido para modelos propios de OpenServBus con un
- *   título aún sin sufijo.
+ * - `fieldLabels()`: incluye los searchFields que casan con una columna visible (por coincidencia
+ *   directa o por sufijo tras el punto) y también los searchFields SIN columna (fase 2), sin
+ *   duplicados y respetando el orden.
+ * - `shouldEnrich()`: autoriza el enriquecido para modelos propios de OpenServBus (incluidos sus
+ *   JoinModel); para modelos normales no reenriquece si el título ya tiene sufijo.
  */
 final class AccumulatedSearchTitleTest extends TestCase
 {
@@ -66,6 +67,22 @@ final class AccumulatedSearchTitleTest extends TestCase
             '||3||66',
             $suffix,
             'Sin etiquetas de campo, el sufijo no debe añadir un "||" final vacío'
+        );
+    }
+
+    /**
+     * fieldLabels() debe ofrecer igualmente los searchFields SIN columna visible (fase 2), típicos
+     * de un JoinModel, con la clave completa del searchField y una etiqueta traducida.
+     */
+    public function testFieldLabelsCampoSinColumnaSeOfreceIgual(): void
+    {
+        $labels = AccumulatedSearchTitle::fieldLabels([], ['cod_vehicle']);
+
+        $this->assertCount(1, $labels, 'Un searchField sin columna debe ofrecerse en el selector');
+        $this->assertStringStartsWith(
+            'cod_vehicle:',
+            $labels[0],
+            'La clave del par debe ser el searchField completo, seguido de su etiqueta'
         );
     }
 
@@ -97,14 +114,26 @@ final class AccumulatedSearchTitleTest extends TestCase
         );
     }
 
-    /** fieldLabels() con una lista de columnas vacía debe devolver una lista vacía. */
-    public function testFieldLabelsListaVacia(): void
+    /**
+     * fieldLabels() para un JoinModel: casa los searchFields prefijados 'tabla.campo' con columnas
+     * por el sufijo tras el punto (emitiendo la clave completa) y añade los que no tienen columna.
+     */
+    public function testFieldLabelsJoinPrefijadosYSinColumna(): void
     {
-        $this->assertSame(
-            [],
-            AccumulatedSearchTitle::fieldLabels([], ['cod_vehicle']),
-            'Sin columnas no puede haber etiquetas'
-        );
+        $columns = [
+            $this->makeColumn('km', 'titulo-ficticio-kms', false),
+            $this->makeColumn('litros', 'titulo-ficticio-litros', false),
+            $this->makeColumn('iddriver', 'titulo-ficticio-driver', false), // no es searchField
+        ];
+        $searchFields = ['fk.km', 'fk.litros', 'd.nombre_conductor'];
+
+        $labels = AccumulatedSearchTitle::fieldLabels($columns, $searchFields);
+
+        // km/litros casan por sufijo con su columna; nombre_conductor no tiene columna (fase 2).
+        $this->assertSame('fk.km:titulo-ficticio-kms', $labels[0]);
+        $this->assertSame('fk.litros:titulo-ficticio-litros', $labels[1]);
+        $this->assertStringStartsWith('d.nombre_conductor:', $labels[2]);
+        $this->assertCount(3, $labels);
     }
 
     /** fieldLabels() no debe duplicar la etiqueta cuando dos columnas comparten fieldname. */
@@ -122,39 +151,6 @@ final class AccumulatedSearchTitleTest extends TestCase
             ['cod_vehicle:titulo-ficticio-primero'],
             $labels,
             'No debe duplicar la etiqueta de un mismo fieldname aunque haya varias columnas'
-        );
-    }
-
-    /**
-     * shouldEnrich() debe rechazar un JoinModel aunque su clase padre caiga bajo el namespace de
-     * OpenServBus (MODEL_NS). Caso real: FacturaScripts\Dinamic\Model\Join\FuelKm extiende a
-     * FacturaScripts\Plugins\OpenServBus\Model\Join\FuelKm (empieza por MODEL_NS), pero al
-     * extender a su vez de Core\Template\JoinModel no expone primaryColumn()/tableName(), que es
-     * precisamente lo que usa shouldEnrich() para excluir los JoinModel (ver ListFuelKm, que
-     * sustituye el modelo de su vista de importación por este JoinModel cuando CSVimport está
-     * activo; BuscadorAcumulado tampoco enriquece JoinModel).
-     */
-    public function testShouldEnrichFalseParaJoinModelDeOpenServBus(): void
-    {
-        $joinModel = new FuelKmJoin();
-
-        // confirmamos la premisa: el padre del JoinModel cae bajo el namespace de OpenServBus...
-        $this->assertStringStartsWith(
-            AccumulatedSearchTitle::MODEL_NS,
-            (string)get_parent_class($joinModel),
-            'El padre de Dinamic\Model\Join\FuelKm debe caer bajo el namespace de modelos de OpenServBus'
-        );
-        // ...pero no expone primaryColumn()/tableName(), a diferencia de un ModelClass normal.
-        $this->assertFalse(
-            method_exists($joinModel, 'primaryColumn') && method_exists($joinModel, 'tableName'),
-            'Un JoinModel no debe exponer primaryColumn()/tableName()'
-        );
-
-        $view = $this->makeView($joinModel, 'refueling-kms');
-
-        $this->assertFalse(
-            AccumulatedSearchTitle::shouldEnrich($view),
-            'shouldEnrich() debe excluir los JoinModel aunque su padre esté en el namespace de OpenServBus'
         );
     }
 
@@ -188,6 +184,57 @@ final class AccumulatedSearchTitleTest extends TestCase
         $this->assertFalse(
             AccumulatedSearchTitle::shouldEnrich($view),
             'Sin modelo asignado no se puede determinar el namespace, así que no debe enriquecerse'
+        );
+    }
+
+    /**
+     * shouldEnrich() debe autorizar un JoinModel AUNQUE su título ya esté enriquecido: se reconstruye
+     * el sufijo para añadir sus campos sin columna, que BuscadorAcumulado no ofrece. Para un modelo
+     * normal ya enriquecido, en cambio, devuelve false (testShouldEnrichFalseSiElTituloYaEstaEnriquecido).
+     */
+    public function testShouldEnrichTrueParaJoinModelAunqueTituloYaEnriquecido(): void
+    {
+        $view = $this->makeView(new FuelKmJoin(), 'refueling-kms||3||66||fk.km:Kms');
+
+        $this->assertTrue(
+            AccumulatedSearchTitle::shouldEnrich($view),
+            'Un JoinModel ya enriquecido (p. ej. sufijo parcial de BuscadorAcumulado) debe reenriquecerse'
+        );
+    }
+
+    /**
+     * shouldEnrich() debe AUTORIZAR un JoinModel de OpenServBus. Caso real:
+     * FacturaScripts\Dinamic\Model\Join\FuelKm extiende a
+     * FacturaScripts\Plugins\OpenServBus\Model\Join\FuelKm (empieza por MODEL_NS) y, aunque no
+     * expone primaryColumn()/tableName(), sí expone count(): eso basta para enriquecerlo (ver
+     * ListFuelKm, que sustituye el modelo de su vista de importación por este JoinModel cuando
+     * CSVimport está activo). Así el selector incluye sus campos sin columna visible.
+     */
+    public function testShouldEnrichTrueParaJoinModelDeOpenServBus(): void
+    {
+        $joinModel = new FuelKmJoin();
+
+        // confirmamos la premisa: el padre del JoinModel cae bajo el namespace de OpenServBus...
+        $this->assertStringStartsWith(
+            AccumulatedSearchTitle::MODEL_NS,
+            (string)get_parent_class($joinModel),
+            'El padre de Dinamic\Model\Join\FuelKm debe caer bajo el namespace de modelos de OpenServBus'
+        );
+        // ...y, aunque no expone primaryColumn()/tableName(), sí expone count().
+        $this->assertFalse(
+            method_exists($joinModel, 'primaryColumn') && method_exists($joinModel, 'tableName'),
+            'Un JoinModel no expone primaryColumn()/tableName()'
+        );
+        $this->assertTrue(
+            method_exists($joinModel, 'count'),
+            'Un JoinModel sí expone count()'
+        );
+
+        $view = $this->makeView($joinModel, 'refueling-kms');
+
+        $this->assertTrue(
+            AccumulatedSearchTitle::shouldEnrich($view),
+            'shouldEnrich() debe autorizar un JoinModel de OpenServBus con título aún sin sufijo'
         );
     }
 

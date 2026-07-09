@@ -26,13 +26,15 @@
  *
  *     Título||count||total||campo:Etiqueta||campo:Etiqueta...
  *
- * BuscadorAcumulado solo construye ese sufijo para las vistas que reconoce
- * (líneas de documento, recibos, variantes, stock, contacto, cuentabanco) y hace
- * un `return` temprano para cualquier otra vista. Los listados standalone de
- * OpenServBus (ListVehicle, etc.) se quedan sin ese sufijo → sin contadores ni
- * selector de campo. Este helper reproduce el formato EXACTO de BuscadorAcumulado
- * (Extension/Controller/ListController.php: buildFieldLabels y el append del title)
- * para que la extensión de OpenServBus lo aplique a sus propias vistas.
+ * BuscadorAcumulado v2.61 ya compone ese sufijo para toda vista con searchFields,
+ * pero su selector de campo lo construye cruzando los searchFields con las COLUMNAS
+ * VISIBLES de la vista (Extension/Controller/ListController.php: BAFields::build).
+ * Por eso un JoinModel cuyos searchFields son campos calculados de tablas unidas
+ * (p. ej. 'd.nombre_conductor' en Model/Join/FuelKm) NO aparece en el selector: no
+ * tiene columna visible que los represente. Este helper reproduce el formato EXACTO
+ * de BuscadorAcumulado y, además, ofrece en el selector los searchFields SIN columna
+ * (fase 2 de fieldLabels), de modo que la extensión de OpenServBus complete lo que
+ * BuscadorAcumulado no puede para sus propias vistas (incluidos sus JoinModel).
  *
  * Se aísla aquí (y no como método de la clase de extensión) por dos motivos:
  *   1. El sistema de extensiones registra por Reflection TODOS los métodos de la
@@ -44,6 +46,7 @@
 
 namespace FacturaScripts\Plugins\OpenServBus\Lib;
 
+use FacturaScripts\Core\Template\JoinModel;
 use FacturaScripts\Core\Tools;
 
 final class AccumulatedSearchTitle
@@ -71,30 +74,69 @@ final class AccumulatedSearchTitle
 
     /**
      * Construye la lista de pares "campo:Etiqueta" para el selector de campo, a
-     * partir de las columnas de la vista y sus searchFields. Solo se incluyen los
-     * searchFields que son columnas VISIBLES (con su etiqueta traducida), sin
-     * duplicados y respetando el orden de las columnas. Réplica de buildFieldLabels
-     * de BuscadorAcumulado.
+     * partir de las columnas de la vista y sus searchFields. La clave emitida es
+     * siempre el searchField COMPLETO (prefijado 'tabla.campo' en un JoinModel)
+     * para que el WHERE generado sea SQL válido. Dos fases:
+     *
+     *   1. searchFields que casan con una columna VISIBLE — por coincidencia
+     *      directa o por sufijo tras el punto (JoinModel) — con la etiqueta de la
+     *      columna. Réplica de BAFields::build de BuscadorAcumulado.
+     *   2. searchFields SIN columna visible (campos calculados de un JoinModel,
+     *      p. ej. 'd.nombre_conductor'): se ofrecen igualmente, con etiqueta
+     *      Tools::trans() del nombre de campo sin el prefijo 'tabla.'. Esto es lo
+     *      que BuscadorAcumulado no hace y por lo que OpenServBus lo completa.
+     *
+     * Sin duplicados y respetando el orden de las columnas (fase 1) y de los
+     * searchFields (fase 2).
      *
      * @param array $columns columnas de la vista ($view->getColumns())
      * @param array $searchFields campos de búsqueda de la vista ($view->searchFields)
-     * @return string[] lista de "fieldname:Etiqueta"
+     * @return string[] lista de "searchField:Etiqueta"
      */
     public static function fieldLabels(array $columns, array $searchFields): array
     {
         $sFields = array_unique(array_filter(array_map('trim', explode('|', implode('|', $searchFields)))));
         $labels = [];
         $seen = [];
+
+        // Fase 1: searchFields con columna visible (match directo o por sufijo tras el punto).
         foreach ($columns as $col) {
             if (method_exists($col, 'hidden') && $col->hidden()) {
                 continue;
             }
             $fn = $col->widget->fieldname ?? '';
-            if ($fn !== '' && in_array($fn, $sFields, true) && !isset($seen[$fn])) {
-                $labels[] = $fn . ':' . Tools::trans($col->title);
-                $seen[$fn] = true;
+            if ($fn === '') {
+                continue;
+            }
+            $match = null;
+            foreach ($sFields as $sf) {
+                if ($sf === $fn) {
+                    $match = $sf;
+                    break;
+                }
+                $dot = strrpos($sf, '.');
+                if ($dot !== false && substr($sf, $dot + 1) === $fn) {
+                    $match = $sf;
+                    break;
+                }
+            }
+            if ($match !== null && !isset($seen[$match])) {
+                $labels[] = $match . ':' . Tools::trans($col->title);
+                $seen[$match] = true;
             }
         }
+
+        // Fase 2: searchFields sin columna visible (típico de JoinModel).
+        foreach ($sFields as $sf) {
+            if (isset($seen[$sf])) {
+                continue;
+            }
+            $dot = strrpos($sf, '.');
+            $key = $dot !== false ? substr($sf, $dot + 1) : $sf;
+            $labels[] = $sf . ':' . Tools::trans($key);
+            $seen[$sf] = true;
+        }
+
         return $labels;
     }
 
@@ -102,15 +144,18 @@ final class AccumulatedSearchTitle
      * Decide si el título de la vista debe enriquecerse:
      *   - el modelo debe provenir de OpenServBus (su clase padre está en MODEL_NS;
      *     en runtime $view->model es un FacturaScripts\Dinamic\Model\Xxx cuyo padre
-     *     es FacturaScripts\Plugins\OpenServBus\Model\Xxx). Esto descarta además los
-     *     JoinModel y los modelos del core u otros plugins.
-     *   - el título no debe estar ya enriquecido (sin '||'), para no pisar el sufijo
-     *     que pudiera haber añadido BuscadorAcumulado u otra pasada del pipe.
-     *   - el modelo debe ser un ModelClass respaldado por tabla: exponer count(),
-     *     primaryColumn() y tableName(). Esto EXCLUYE los JoinModel, que definen
-     *     count() pero no primaryColumn()/tableName() — BuscadorAcumulado tampoco es
-     *     compatible con JoinModel (los excluye igual en ListController.php:821), así
-     *     que dejamos fuera vistas como la de importación de ListFuelKm.
+     *     es FacturaScripts\Plugins\OpenServBus\Model\Xxx). Esto incluye a los
+     *     JoinModel del plugin, cuyo padre es Model\Join\Xxx (empieza por MODEL_NS),
+     *     y descarta los modelos del core u otros plugins.
+     *   - el modelo debe exponer count() (lo cumplen tanto ModelClass como
+     *     Core\Template\JoinModel, con firma estática).
+     *   - si el título YA está enriquecido (contiene '||'):
+     *       · modelo normal: devolvemos false (respetamos el sufijo existente, ya
+     *         sea de BuscadorAcumulado o de una pasada previa del pipe).
+     *       · JoinModel: devolvemos true para RECONSTRUIR el sufijo y añadir sus
+     *         campos sin columna visible (conductor/vehículo/surtidor), que
+     *         BuscadorAcumulado no ofrece porque arma el selector desde columnas.
+     *         La reconstrucción (recorte + recomposición) la hace el pipe loadData.
      */
     public static function shouldEnrich($view): bool
     {
@@ -123,12 +168,14 @@ final class AccumulatedSearchTitle
             return false;
         }
 
-        if (strpos((string)$view->title, '||') !== false) {
+        if (!method_exists($view->model, 'count')) {
             return false;
         }
 
-        return method_exists($view->model, 'count')
-            && method_exists($view->model, 'primaryColumn')
-            && method_exists($view->model, 'tableName');
+        if (strpos((string)$view->title, '||') !== false) {
+            return $view->model instanceof JoinModel;
+        }
+
+        return true;
     }
 }

@@ -26,10 +26,11 @@
  *
  * Motivo: BuscadorAcumulado añade al título de la pestaña el sufijo
  * "||count||total||campo:Etiqueta..." (que alimenta los contadores "X de Y" y el
- * selector por campo) únicamente para las vistas relacionadas que reconoce
- * (líneas, recibos, variantes...) y hace un return temprano para el resto. Las
- * listas standalone de OpenServBus se quedaban sin ese sufijo. Aquí se lo
- * añadimos nosotros replicando su formato exacto (ver Lib\AccumulatedSearchTitle).
+ * selector por campo), pero arma el selector cruzando searchFields con COLUMNAS
+ * VISIBLES. Los campos calculados de un JoinModel (p. ej. conductor/vehículo/
+ * surtidor en ListFuelKm) no tienen columna, así que quedan fuera del selector.
+ * Aquí replicamos su formato exacto (ver Lib\AccumulatedSearchTitle) y añadimos
+ * también esos campos sin columna, reconstruyendo el sufijo si hiciera falta.
  *
  * RESTRICCIÓN DEL SISTEMA DE EXTENSIONES: el core registra por Reflection todos
  * los métodos de esta clase como pipes y los invoca sin argumentos, así que la
@@ -54,6 +55,16 @@ class ListController
      * consume BuscadorAcumulado y carga el JS de contadores (BuscadorAcumulado.js
      * ya lo carga el propio plugin para todos los List* desde execPreviousAction;
      * SincronizaLineas.js solo lo carga en sus ramas de sync, por eso falta aquí).
+     *
+     * RECONSTRUCCIÓN DEL SUFIJO: componemos el sufijo sobre el título base (lo que
+     * hay antes del primer '||'), no concatenando. Así, si BuscadorAcumulado ya
+     * añadió un sufijo parcial a un JoinModel (solo los campos con columna visible),
+     * lo recortamos y lo recomponemos con la lista COMPLETA — incluidos los campos
+     * sin columna (conductor/vehículo/surtidor). El orden de ejecución de los pipes
+     * de ambos plugins no es controlable, y esto hace que nuestra lista gane sea cual
+     * sea ese orden; el guard strpos('||') de BuscadorAcumulado evita que reañada.
+     * Para modelos normales sin sufijo previo, la base es el propio título (el
+     * resultado es idéntico a concatenar).
      */
     public function loadData(): Closure
     {
@@ -62,9 +73,10 @@ class ListController
                 return;
             }
 
+            $baseTitle = explode('||', (string)$view->title, 2)[0];
             $fieldLabels = AccumulatedSearchTitle::fieldLabels($view->getColumns(), $view->searchFields);
             $total = (int)$view->model->count();
-            $view->title .= AccumulatedSearchTitle::buildSuffix((int)$view->count, $total, $fieldLabels);
+            $view->title = $baseTitle . AccumulatedSearchTitle::buildSuffix((int)$view->count, $total, $fieldLabels);
 
             AssetManager::addJs(FS_ROUTE . '/Plugins/BuscadorAcumulado/Assets/JS/SincronizaLineas.js');
         };
