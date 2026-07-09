@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  * Copyright (C) 2026 Oko Digital Experts, S.L.L. (Okodex)
  * @author Alexis Serafín <alexis@okodex.com>
  *
@@ -36,35 +36,11 @@ class ListHelper extends ListController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        $this->createViewHelper();
-        $this->createViewGarage();
-        $this->createViewDepartment();
-        $this->createViewCollaborator();
-        $this->createViewIdentificationMean();
-    }
-
     protected function createViewCollaborator($viewName = 'ListCollaborator'): void
     {
         $this->addView($viewName, 'Collaborator', 'collaborator', 'fa-solid fa-business-time');
         $this->addSearchFields($viewName, ['codproveedor', 'nombre']);
         $this->addOrderBy($viewName, ['codproveedor'], 'cod-supplier');
-        $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
-
-        // Filtros
-        $activo = [
-            ['code' => '1', 'description' => 'active-yes'],
-            ['code' => '0', 'description' => 'active-no'],
-        ];
-        $this->addFilterSelect($viewName, 'soloActivos', 'active-all', 'activo', $activo);
-    }
-
-    protected function createViewDepartment($viewName = 'ListDepartment'): void
-    {
-        $this->addView($viewName, 'Department', 'departments', 'fa-solid fa-book-reader');
-        $this->addSearchFields($viewName, ['nombre']);
-        $this->addOrderBy($viewName, ['nombre'], 'name', 1);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
         // Filtros
@@ -115,6 +91,30 @@ class ListHelper extends ListController
     protected function createViewIdentificationMean($viewName = 'ListIdentificationMean'): void
     {
         $this->addView($viewName, 'IdentificationMean', 'means-of-identification', 'fa-regular fa-hand-point-right');
+        $this->addSearchFields($viewName, ['nombre']);
+        $this->addOrderBy($viewName, ['nombre'], 'name', 1);
+        $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
+
+        // Filtros
+        $activo = [
+            ['code' => '1', 'description' => 'active-yes'],
+            ['code' => '0', 'description' => 'active-no'],
+        ];
+        $this->addFilterSelect($viewName, 'soloActivos', 'active-all', 'activo', $activo);
+    }
+
+    protected function createViews(): void
+    {
+        $this->createViewHelper();
+        $this->createViewGarage();
+        $this->createViewTourDepartment();
+        $this->createViewCollaborator();
+        $this->createViewIdentificationMean();
+    }
+
+    protected function createViewTourDepartment($viewName = 'ListTourDepartment'): void
+    {
+        $this->addView($viewName, 'TourDepartment', 'departments', 'fa-solid fa-book-reader');
         $this->addSearchFields($viewName, ['nombre']);
         $this->addOrderBy($viewName, ['nombre'], 'name', 1);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
