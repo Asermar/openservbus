@@ -70,6 +70,27 @@ final class AllListViewsEnrichedTest extends TestCase
     }
 
     /**
+     * Refuerzo concreto (modelo NORMAL, no JoinModel): la vista ListStop (modelo Stop) tiene
+     * searchFields 'provincia' y 'codpostal' que NO se muestran como columna en su XMLView. Deben
+     * ofrecerse igualmente en el selector, aunque BuscadorAcumulado (que arma el selector desde
+     * columnas) no los incluya. Verifica que la adaptación no es exclusiva de los JoinModel.
+     */
+    public function testListStopIncluyeCamposSinColumnaEnElSelector(): void
+    {
+        $controller = $this->createController('ListService');
+
+        $this->assertArrayHasKey('ListStop', $controller->views, 'ListService debe registrar la vista "ListStop"');
+
+        $view = $controller->views['ListStop'];
+        $view->count = 1;
+
+        $this->assertTrue($controller->pipeFalse('loadData', 'ListStop', $view));
+
+        $this->assertStringContainsString('||provincia:', $view->title, 'Falta el campo sin columna "provincia" en el selector de ListStop');
+        $this->assertStringContainsString('||codpostal:', $view->title, 'Falta el campo sin columna "codpostal" en el selector de ListStop');
+    }
+
+    /**
      * Refuerzo concreto: la vista principal de ListVehicle (modelo Vehicle, propio de
      * OpenServBus) debe llevar el selector de campo con sus tres searchFields.
      */

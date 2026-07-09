@@ -27,10 +27,11 @@
  * Motivo: BuscadorAcumulado añade al título de la pestaña el sufijo
  * "||count||total||campo:Etiqueta..." (que alimenta los contadores "X de Y" y el
  * selector por campo), pero arma el selector cruzando searchFields con COLUMNAS
- * VISIBLES. Los campos calculados de un JoinModel (p. ej. conductor/vehículo/
- * surtidor en ListFuelKm) no tienen columna, así que quedan fuera del selector.
- * Aquí replicamos su formato exacto (ver Lib\AccumulatedSearchTitle) y añadimos
- * también esos campos sin columna, reconstruyendo el sufijo si hiciera falta.
+ * VISIBLES. Los searchFields sin columna visible quedan fuera del selector: campos
+ * calculados de un JoinModel (conductor/vehículo/surtidor en ListFuelKm) o campos
+ * reales no mostrados como columna (p. ej. provincia/codpostal en ListStop). Aquí
+ * replicamos su formato exacto (ver Lib\AccumulatedSearchTitle) y añadimos también
+ * esos campos sin columna, reconstruyendo el sufijo si hiciera falta.
  *
  * RESTRICCIÓN DEL SISTEMA DE EXTENSIONES: el core registra por Reflection todos
  * los métodos de esta clase como pipes y los invoca sin argumentos, así que la

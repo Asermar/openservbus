@@ -154,6 +154,42 @@ final class AccumulatedSearchTitleTest extends TestCase
         );
     }
 
+    /**
+     * shouldEnrich() con título YA enriquecido (p. ej. sufijo parcial de BuscadorAcumulado): solo
+     * reenriquece si hay searchFields SIN columna visible (lo que BuscadorAcumulado no ofrece). Si
+     * todos los searchFields tienen columna, respeta el sufijo existente. Aplica a cualquier modelo
+     * de OpenServBus (normal o JoinModel); el disparo es tener campos sin columna, no el tipo de modelo.
+     */
+    public function testShouldEnrichConTituloEnriquecidoSoloSiHayCamposSinColumna(): void
+    {
+        $model = new Vehicle();
+        $columns = [$this->makeColumn('nombre', 'name', false)];
+
+        // 'matricula' es searchField pero no tiene columna -> hay que reconstruir.
+        $conCampoSinColumna = $this->makeViewWithFields(
+            $model,
+            'vehicles||3||66||nombre:Nombre',
+            ['nombre', 'matricula'],
+            $columns
+        );
+        $this->assertTrue(
+            AccumulatedSearchTitle::shouldEnrich($conCampoSinColumna),
+            'Con un searchField sin columna, un título ya enriquecido debe reconstruirse'
+        );
+
+        // todos los searchFields tienen columna -> se respeta el sufijo existente.
+        $todosConColumna = $this->makeViewWithFields(
+            $model,
+            'vehicles||3||66||nombre:Nombre',
+            ['nombre'],
+            $columns
+        );
+        $this->assertFalse(
+            AccumulatedSearchTitle::shouldEnrich($todosConColumna),
+            'Si todos los searchFields tienen columna, no se reenriquece un título ya enriquecido'
+        );
+    }
+
     /** shouldEnrich() debe rechazar modelos que no pertenecen a OpenServBus (p. ej. el core). */
     public function testShouldEnrichFalseParaModeloAjenoAOpenServBus(): void
     {
@@ -184,21 +220,6 @@ final class AccumulatedSearchTitleTest extends TestCase
         $this->assertFalse(
             AccumulatedSearchTitle::shouldEnrich($view),
             'Sin modelo asignado no se puede determinar el namespace, así que no debe enriquecerse'
-        );
-    }
-
-    /**
-     * shouldEnrich() debe autorizar un JoinModel AUNQUE su título ya esté enriquecido: se reconstruye
-     * el sufijo para añadir sus campos sin columna, que BuscadorAcumulado no ofrece. Para un modelo
-     * normal ya enriquecido, en cambio, devuelve false (testShouldEnrichFalseSiElTituloYaEstaEnriquecido).
-     */
-    public function testShouldEnrichTrueParaJoinModelAunqueTituloYaEnriquecido(): void
-    {
-        $view = $this->makeView(new FuelKmJoin(), 'refueling-kms||3||66||fk.km:Kms');
-
-        $this->assertTrue(
-            AccumulatedSearchTitle::shouldEnrich($view),
-            'Un JoinModel ya enriquecido (p. ej. sufijo parcial de BuscadorAcumulado) debe reenriquecerse'
         );
     }
 
@@ -293,6 +314,36 @@ final class AccumulatedSearchTitleTest extends TestCase
             {
                 $this->model = $model;
                 $this->title = $title;
+            }
+        };
+    }
+
+    /**
+     * Stub de $view con searchFields y getColumns(), para el camino de "título ya enriquecido"
+     * de shouldEnrich() (que mira si hay searchFields sin columna visible).
+     *
+     * @param string[] $searchFields
+     * @param object[] $columns
+     */
+    private function makeViewWithFields($model, string $title, array $searchFields, array $columns): object
+    {
+        return new class($model, $title, $searchFields, $columns) {
+            public $model;
+            public $title;
+            public $searchFields;
+            private $columns;
+
+            public function __construct($model, string $title, array $searchFields, array $columns)
+            {
+                $this->model = $model;
+                $this->title = $title;
+                $this->searchFields = $searchFields;
+                $this->columns = $columns;
+            }
+
+            public function getColumns(): array
+            {
+                return $this->columns;
             }
         };
     }
