@@ -22,7 +22,6 @@ namespace FacturaScripts\Test\Plugins;
 
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\Plugins;
-use FacturaScripts\Plugins\OpenServBus\Lib\AccumulatedSearchTitle;
 use FacturaScripts\Test\Traits\DefaultSettingsTrait;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
 use PHPUnit\Framework\TestCase;
@@ -35,11 +34,12 @@ use ReflectionMethod;
  * @description
  * ## Sufijo de búsqueda acumulada — barrido de TODOS los listados de OpenServBus
  *
- * Con `BuscadorAcumulado` activado, recorre los 12 controladores `List*` de OpenServBus y, para
- * cada una de sus vistas, ejecuta el pipe real `loadData` (el mismo que registra `Init::init()`)
- * y comprueba que el enriquecido del título (`||count||total[||campo:Etiqueta...]`) coincide
- * exactamente con lo que predice `AccumulatedSearchTitle::shouldEnrich()` a partir del modelo de
- * la vista, sin que ninguna vista lance una excepción al procesarla.
+ * Desde BuscadorAcumulado 2.64 el enriquecido es NATIVO: su pipe `loadData` añade el sufijo
+ * `||count||total[||campo:Etiqueta...]` a TODA vista con `searchFields` (guard único
+ * `!empty($view->searchFields)`, sin distinción de tipo de modelo). OpenServBus ya no aporta
+ * extensión propia. Esta suite recorre los 12 controladores `List*` de OpenServBus y, para cada
+ * vista, ejecuta el pipe real y comprueba que la presencia del sufijo coincide exactamente con la
+ * regla nativa (tiene o no `searchFields`), sin que ninguna vista lance una excepción.
  */
 final class AllListViewsEnrichedTest extends TestCase
 {
@@ -101,9 +101,11 @@ final class AllListViewsEnrichedTest extends TestCase
 
     /**
      * Barre TODOS los controladores List* de OpenServBus y TODAS sus vistas: ejecuta el pipe real
-     * loadData sobre cada una y comprueba que el enriquecido del título coincide exactamente con
-     * lo que predice AccumulatedSearchTitle::shouldEnrich() evaluado sobre el modelo de la vista
-     * antes de aplicar el pipe. Ninguna vista debe lanzar una excepción al procesarla.
+     * loadData sobre cada una y comprueba, en UN SOLO SENTIDO, que toda vista CON searchFields recibe
+     * el sufijo `||...` (así el selector de campo aparece). No se asevera el sentido inverso: además
+     * del bloque genérico, BuscadorAcumulado 2.64 enriquece con solo el contador algunas vistas hijas
+     * SIN searchFields (sincronización padre↔hijo, p. ej. ListServiceValuation dentro de ListService);
+     * eso es lógica interna del tercero y no la acoplamos aquí. Ninguna vista debe lanzar una excepción.
      */
     public function testTodosLosControladoresEnriquecenSegunElModelo(): void
     {
@@ -117,9 +119,8 @@ final class AllListViewsEnrichedTest extends TestCase
                     continue;
                 }
 
-                // la expectativa se calcula ANTES de ejecutar el pipe, sobre el modelo/título
-                // originales de la vista (shouldEnrich() es una función pura sin efectos).
-                $expected = AccumulatedSearchTitle::shouldEnrich($view);
+                // regla nativa de BuscadorAcumulado 2.64: toda vista con searchFields se enriquece.
+                $expected = !empty($view->searchFields ?? []);
 
                 $view->count = 1;
 
@@ -136,15 +137,14 @@ final class AllListViewsEnrichedTest extends TestCase
                     continue;
                 }
 
-                $this->assertSame(
-                    $expected,
-                    strpos((string)$view->title, '||') !== false,
-                    sprintf(
-                        'El enriquecido del título de %s::%s debe coincidir con shouldEnrich() del modelo',
-                        $controllerName,
-                        $viewName
-                    )
-                );
+                // solo un sentido: searchFields ⇒ enriquecido (el selector aparece).
+                if ($expected) {
+                    $this->assertStringContainsString(
+                        '||',
+                        (string)$view->title,
+                        sprintf('La vista %s::%s tiene searchFields y debe enriquecerse', $controllerName, $viewName)
+                    );
+                }
             }
         }
 
@@ -156,32 +156,28 @@ final class AllListViewsEnrichedTest extends TestCase
     }
 
     /**
-     * Refuerzo concreto: una vista sin searchFields (ListEmployeeAttendanceManagement) debe
-     * recibir únicamente el bloque de contadores "||count||total", sin ningún par "campo:"
-     * adicional (no hay selector de campo porque no hay searchFields que ofrecer).
+     * Regresión cerrada: ListEmployeeAttendanceManagement no tenía searchFields, así que bajo el
+     * enriquecido nativo (gated en !empty(searchFields)) habría perdido el contador "X de Y". Se le
+     * añadió addSearchFields(['observaciones']) en el controlador; este test verifica que ahora sí
+     * recibe el bloque de contadores y el selector de campo "observaciones".
      */
-    public function testVistaSinSearchFieldsSoloLlevaContadores(): void
+    public function testVistaDeAsistenciaRecibeContadorYselector(): void
     {
         $controller = $this->createController('ListEmployeeAttendanceManagement');
         $view = $controller->views['ListEmployeeAttendanceManagement'];
         $view->count = 1;
-        $before = $view->title;
 
         $this->assertTrue($controller->pipeFalse('loadData', 'ListEmployeeAttendanceManagement', $view));
 
         $this->assertStringContainsString(
             '||1||',
             $view->title,
-            'La vista debe llevar el bloque de contadores "||1||total"'
+            'La vista de asistencia debe llevar el bloque de contadores "||1||total"'
         );
-
-        // tras "<title original>||1||<total>" no debe quedar ningún segmento "||" más (sin
-        // selector de campo, porque la vista no tiene searchFields).
-        $suffix = substr($view->title, strlen($before));
-        $this->assertMatchesRegularExpression(
-            '/^\|\|1\|\|\d+$/',
-            $suffix,
-            'Sin searchFields, el sufijo debe ser exactamente "||count||total", sin pares "campo:" adicionales'
+        $this->assertStringContainsString(
+            '||observaciones:',
+            $view->title,
+            'La vista de asistencia debe ofrecer "observaciones" en el selector de campo'
         );
     }
 

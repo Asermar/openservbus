@@ -24,6 +24,7 @@ namespace FacturaScripts\Plugins\OpenServBus;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Cache;
+use FacturaScripts\Core\Migrations;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Core\Template\InitClass;
@@ -33,6 +34,8 @@ use FacturaScripts\Dinamic\Model\Role;
 use FacturaScripts\Dinamic\Model\RoleAccess;
 use FacturaScripts\Dinamic\Model\Service;
 use FacturaScripts\Dinamic\Model\ServiceRegular;
+use FacturaScripts\Plugins\OpenServBus\Migration\DropOrphanColumnNombre;
+use FacturaScripts\Plugins\OpenServBus\Migration\RenameEmployeesTable;
 
 final class Init extends InitClass
 {
@@ -43,17 +46,6 @@ final class Init extends InitClass
         // se ejecuta cada vez que carga FacturaScripts (si este plugin está activado).
         $this->loadExtension(new Extension\Controller\EditRole());
         $this->loadExtension(new Extension\Controller\EditUser());
-
-        // integración con BuscadorAcumulado: enriquecemos el título de nuestras
-        // listas con el sufijo "||count||total||campo:Etiqueta" que ese plugin usa
-        // para los contadores "X de Y" y el selector por campo (él solo lo genera
-        // para sus vistas relacionadas y omite las listas standalone como las
-        // nuestras). Se registra solo si el plugin está activo (declarado como
-        // "compatible" en facturascripts.ini) para no enganchar el pipe a todos
-        // los List* cuando no puede funcionar.
-        if (Plugins::isEnabled('BuscadorAcumulado')) {
-            $this->loadExtension(new Extension\Controller\ListController());
-        }
 
         // importación de repostajes desde CSV: solo si el plugin CSVimport está activado
         // (declarado como "compatible" en facturascripts.ini).
@@ -85,24 +77,19 @@ final class Init extends InitClass
     {
         new Service();
         new ServiceRegular();
-        $this->deleteColumnFromTable();
-        $this->changeNameEmployee();
+
+        // migraciones de esquema de una sola ejecución (antes en changeNameEmployee/
+        // deleteColumnFromTable, que se reintentaban en cada update). Se registran en
+        // MyFiles/migrations.json y no vuelven a correr una vez aplicadas. Orden
+        // cronológico: v3.0 (drop columna) → v3.1 (rename tabla).
+        Migrations::runPluginMigration(new DropOrphanColumnNombre());
+        Migrations::runPluginMigration(new RenameEmployeesTable());
+
         $this->createRoleForPlugin();
 
         // limpiamos la caché para que se regenere la lista de campos de los modelos
         // tras sincronizar columnas nuevas (p.ej. estadísticas de repostajes)
         Cache::clear();
-    }
-
-    protected function changeNameEmployee(): void
-    {
-        // cambiamos el nombre de la tabla employees por employees_open
-        // al actualizar a la versión 3.1
-        $dataBase = new DataBase();
-        if ($dataBase->tableExists('employees')) {
-            $sql = "ALTER TABLE employees RENAME employees_open";
-            $dataBase->exec($sql);
-        }
     }
 
     protected function createRoleForPlugin(): void
@@ -205,29 +192,5 @@ final class Init extends InitClass
 
         // without problems = Commit
         $dataBase->commit();
-    }
-
-    protected function deleteColumnFromTable(): void
-    {
-        // eliminamos las columnas deseadas de las tablas seleccionadas
-        // al actualizar a la versión 3.0
-        // NOTA: 'drivers' NO se incluye: drivers.nombre es una columna vigente
-        // (definida en Table/drivers.xml y poblada por Driver::test()) que usa el
-        // Join de OSBFuelImport en ListFuelKm. Borrarla rompe ese listado.
-        $dataBase = new DataBase();
-        $columns = ['nombre'];
-        $tables = ['employee_contracts', 'employees_attendance_management_yn', 'helpers', 'collaborators'];
-        foreach ($tables as $table) {
-            // preguntamos si existe la tabla
-            if (false === $dataBase->tableExists($table)) {
-                continue;
-            }
-            foreach ($dataBase->getColumns($table) as $column) {
-                if (in_array($column['name'], $columns)) {
-                    $sql = 'ALTER TABLE ' . $table . ' DROP COLUMN ' . $column['name'];
-                    $dataBase->exec($sql);
-                }
-            }
-        }
     }
 }

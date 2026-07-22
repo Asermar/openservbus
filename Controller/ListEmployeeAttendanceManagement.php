@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  * Copyright (C) 2026 Oko Digital Experts, S.L.L. (Okodex)
  * @author Alexis Serafín <alexis@okodex.com>
  *
@@ -35,13 +35,6 @@ class ListEmployeeAttendanceManagement extends ListController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        $this->createViewEmployeeAttendanceManagement();
-        $this->createViewAbsenceReason();
-        $this->createViewEmployeeAttendanceManagementYn();
-    }
-
     protected function createViewAbsenceReason($viewName = 'ListAbsenceReason'): void
     {
         $this->addView($viewName, 'AbsenceReason', 'absences-reasons', 'fa-solid fa-first-aid');
@@ -60,6 +53,7 @@ class ListEmployeeAttendanceManagement extends ListController
     protected function createViewEmployeeAttendanceManagement($viewName = 'ListEmployeeAttendanceManagement'): void
     {
         $this->addView($viewName, 'EmployeeAttendanceManagement', 'transfers-and-assists', 'fa-solid fa-hourglass-half');
+        $this->addSearchFields($viewName, ['observaciones']);
         $this->addOrderBy($viewName, ['fecha'], 'date', 1);
         $this->addOrderBy($viewName, ['idemployee', 'fecha'], 'employee-date');
 
@@ -91,6 +85,7 @@ class ListEmployeeAttendanceManagement extends ListController
     protected function createViewEmployeeAttendanceManagementYn($viewName = 'ListEmployeeAttendanceManagementYn'): void
     {
         $this->addView($viewName, 'EmployeeAttendanceManagementYn', 'force-face-to-face-control', 'fa-solid fa-fingerprint');
+        $this->addSearchFields($viewName, ['observaciones']);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
         // Filtros
@@ -101,5 +96,12 @@ class ListEmployeeAttendanceManagement extends ListController
         $this->addFilterSelect($viewName, 'soloActivos', 'active-all', 'activo', $activo);
 
         $this->addFilterAutocomplete($viewName, 'xIdEmployee', 'employee', 'idemployee', 'employees_open', 'idemployee', 'nombre');
+    }
+
+    protected function createViews(): void
+    {
+        $this->createViewEmployeeAttendanceManagement();
+        $this->createViewAbsenceReason();
+        $this->createViewEmployeeAttendanceManagementYn();
     }
 }
