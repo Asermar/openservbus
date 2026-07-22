@@ -23,6 +23,7 @@ namespace FacturaScripts\Test\Plugins;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Template\JoinModel;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Controller\ListFuelKm;
 use FacturaScripts\Test\Traits\DefaultSettingsTrait;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
@@ -34,16 +35,18 @@ use ReflectionMethod;
  * OpenServBus,CSVimport,BuscadorAcumulado).
  *
  * @description
- * ## Sufijo de búsqueda acumulada — exclusión de JoinModel (importación de repostajes)
+ * ## Sufijo de búsqueda acumulada — enriquecido de JoinModel (importación de repostajes)
  *
  * Con `CSVimport` activo, `ListFuelKm::createViewImportKms()` sustituye el modelo de la vista
  * `ListFuelKm` por el `JoinModel` `FacturaScripts\Dinamic\Model\Join\FuelKm` (para poder buscar en
- * las tablas relacionadas). `AccumulatedSearchTitle::shouldEnrich()` excluye expresamente los
- * `JoinModel` (no exponen `primaryColumn()`/`tableName()`), así que, aunque `BuscadorAcumulado`
- * esté activo, esa vista **no** debe recibir el sufijo de contadores. Otra vista de la misma
- * suite con un modelo normal de OpenServBus (`ListFuelPump`) sí debe enriquecerse.
+ * las tablas relacionadas: conductor, vehículo, surtidor). Desde BuscadorAcumulado 2.64 el
+ * enriquecido de títulos es nativo y **sí** cubre los JoinModel: esa vista debe recibir el sufijo
+ * `||count||total||campo:Etiqueta...`, con el selector de TODOS sus searchFields, incluidos los que
+ * no tienen columna visible (`d.nombre_conductor`, `v.nombre_vehiculo`, `fp.nombre_surtidor`), que
+ * OpenServBus traduce con etiquetas propias. Otra vista con modelo normal (`ListFuelPump`) también
+ * se enriquece.
  */
-final class JoinModelNotEnrichedTest extends TestCase
+final class JoinModelEnrichedTest extends TestCase
 {
     use DefaultSettingsTrait;
     use LogErrorsTrait;
@@ -56,9 +59,24 @@ final class JoinModelNotEnrichedTest extends TestCase
     }
 
     /**
-     * En el mismo escenario (CSVimport + BuscadorAcumulado), otra vista de ListFuelKm con un
-     * modelo normal de OpenServBus (ListFuelPump -> FuelPump) sí debe enriquecerse con el sufijo
-     * de contadores, confirmando que la exclusión es específica de los JoinModel.
+     * Los searchFields sin columna visible (conductor/vehículo/surtidor) se etiquetan con
+     * Tools::trans() del nombre de campo; sin claves de traducción propias saldría el fallback
+     * "Nombre_conductor". Este test (desacoplado del idioma) garantiza que existen las traducciones.
+     */
+    public function testEtiquetasDeCamposSinColumnaEstanTraducidas(): void
+    {
+        foreach (['nombre_conductor', 'nombre_vehiculo', 'nombre_surtidor'] as $key) {
+            $this->assertNotSame(
+                $key,
+                Tools::trans($key),
+                sprintf('Falta la traducción de "%s" (el selector mostraría el nombre de campo crudo)', $key)
+            );
+        }
+    }
+
+    /**
+     * En el mismo escenario, otra vista de ListFuelKm con un modelo normal de OpenServBus
+     * (ListFuelPump -> FuelPump) también debe enriquecerse con el sufijo de contadores.
      */
     public function testOtraVistaConModeloNormalSiSeEnriquece(): void
     {
@@ -111,11 +129,11 @@ final class JoinModelNotEnrichedTest extends TestCase
     }
 
     /**
-     * La vista ListFuelKm queda con un modelo JoinModel (sustituido por createViewImportKms al
-     * estar CSVimport activo) y, pese a que BuscadorAcumulado está activo, su título no debe
-     * llevar el sufijo "||count||total..." porque shouldEnrich() excluye los JoinModel.
+     * La vista ListFuelKm queda con un modelo JoinModel (sustituido por createViewImportKms al estar
+     * CSVimport activo). Bajo BuscadorAcumulado 2.64 su título debe recibir el sufijo de contadores y
+     * el selector con sus cinco searchFields (los prefijados sin columna incluidos).
      */
-    public function testVistaConJoinModelNoSeEnriquece(): void
+    public function testVistaConJoinModelSiSeEnriquece(): void
     {
         $controller = new ListFuelKm('ListFuelKm');
         $controller->permissions = new ControllerPermissions();
@@ -142,20 +160,23 @@ final class JoinModelNotEnrichedTest extends TestCase
         );
 
         $joinView->count = 1;
-        $before = $joinView->title;
 
         $this->assertTrue($controller->pipeFalse('loadData', $joinViewName, $joinView));
 
-        $this->assertSame(
-            $before,
+        $this->assertStringContainsString(
+            '||1||',
             $joinView->title,
-            'El pipe loadData no debe modificar el título de una vista cuyo modelo es un JoinModel'
+            'La vista con JoinModel debe llevar el bloque de contadores "||1||total"'
         );
-        $this->assertStringNotContainsString(
-            '||',
-            $joinView->title,
-            'Una vista con JoinModel no debe llevar el sufijo de contadores de BuscadorAcumulado'
-        );
+
+        // selector de campo: los cinco searchFields del Join deben aparecer como pares campo:Etiqueta
+        foreach (['fk.km:', 'fk.litros:', 'd.nombre_conductor:', 'v.nombre_vehiculo:', 'fp.nombre_surtidor:'] as $needle) {
+            $this->assertStringContainsString(
+                $needle,
+                $joinView->title,
+                sprintf('Falta el selector de campo "%s" en la vista JoinModel de ListFuelKm', rtrim($needle, ':'))
+            );
+        }
     }
 
     protected function tearDown(): void

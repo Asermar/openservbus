@@ -20,9 +20,7 @@
 
 namespace FacturaScripts\Test\Plugins;
 
-use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\Plugins;
-use FacturaScripts\Plugins\OpenServBus\Lib\AccumulatedSearchTitle;
 use FacturaScripts\Test\Traits\DefaultSettingsTrait;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
 use PHPUnit\Framework\TestCase;
@@ -35,13 +33,15 @@ use ReflectionMethod;
  * @description
  * ## Sufijo de búsqueda acumulada — BuscadorAcumulado **activado**
  *
- * Verifica, por integración (pipe real `loadData` registrado por `Init::init()`), que con
- * `BuscadorAcumulado` activado:
+ * Desde BuscadorAcumulado 2.64 el enriquecido de títulos es **nativo**: su propia extensión de
+ * `ListController` (registrada por su `Init::init()`, sin gate) añade a TODA vista con `searchFields`
+ * el sufijo `||count||total||campo:Etiqueta...`. OpenServBus ya no aporta ninguna extensión propia
+ * para esto. Esta suite verifica, por integración (pipe real `loadData`), que:
  *
- * 1. La vista principal de `ListVehicle` (modelo propio de OpenServBus) recibe el sufijo
- *    `||count||total||campo:Etiqueta...` en su título.
- * 2. Ese enriquecido queda restringido a las vistas de OpenServBus: una lista **del core**
- *    (`ListCliente`, ajena a OpenServBus) no se ve afectada por esta extensión.
+ * 1. Con BuscadorAcumulado activo, la vista principal de `ListVehicle` (modelo de OpenServBus con
+ *    searchFields) recibe el sufijo con el selector de sus tres campos.
+ * 2. La presencia del sufijo coincide con el estado del plugin (red de alarma: si una futura versión
+ *    de BuscadorAcumulado dejara de enriquecer, esta invariante lo detectaría).
  */
 final class AccumulatedSearchPresentTest extends TestCase
 {
@@ -68,11 +68,9 @@ final class AccumulatedSearchPresentTest extends TestCase
     }
 
     /**
-     * Invariante válida en cualquier estado del plugin: que el pipe real ListVehicle::loadData
-     * enriquezca el título (le añada el separador "||") debe coincidir exactamente con
-     * Plugins::isEnabled('BuscadorAcumulado'). Nótese que esto depende del REGISTRO de la
-     * extensión en Init.php, no de AccumulatedSearchTitle::shouldEnrich() (que es una función
-     * pura sin conocimiento del estado de los plugins: solo mira el modelo y el título).
+     * Invariante: que el pipe real ListVehicle::loadData enriquezca el título (le añada "||") debe
+     * coincidir exactamente con Plugins::isEnabled('BuscadorAcumulado'). El enriquecido lo aporta el
+     * pipe NATIVO de BuscadorAcumulado (ListVehicle tiene searchFields), no una extensión de OpenServBus.
      */
     public function testDetectionMatchesEnabledState(): void
     {
@@ -92,51 +90,8 @@ final class AccumulatedSearchPresentTest extends TestCase
     }
 
     /**
-     * Aislamiento de scope: una lista del CORE ajena a OpenServBus (ListCliente) no debe verse
-     * afectada por esta extensión, aunque el pipe loadData esté enganchado globalmente a todos
-     * los List* del sistema.
-     */
-    public function testListaDelCoreNoSeVeAfectada(): void
-    {
-        $this->assertTrue(
-            Plugins::isEnabled('BuscadorAcumulado'),
-            'Esta suite (Test/with-buscadoracumulado) debe ejecutarse con BuscadorAcumulado activado'
-        );
-
-        $controller = new \FacturaScripts\Dinamic\Controller\ListCliente('ListCliente');
-        // createViews() de ListCliente consulta $this->permissions->onlyOwnerData; sin privateCore()
-        // esa propiedad es null, así que la fijamos con un valor por defecto (acceso completo).
-        $controller->permissions = new ControllerPermissions();
-        $this->invokeCreateViews($controller);
-
-        $view = $controller->views['ListCliente'];
-
-        // primero comprobamos con el helper: el modelo de ListCliente (Cliente) no es de OpenServBus.
-        $this->assertFalse(
-            AccumulatedSearchTitle::shouldEnrich($view),
-            'shouldEnrich() debe rechazar la vista de Cliente por no pertenecer a OpenServBus'
-        );
-
-        $view->count = 1;
-        $before = $view->title;
-
-        $this->assertTrue($controller->pipeFalse('loadData', 'ListCliente', $view));
-
-        $this->assertSame(
-            $before,
-            $view->title,
-            'La extensión de OpenServBus no debe modificar el título de una lista del core'
-        );
-        $this->assertStringNotContainsString(
-            '||',
-            $view->title,
-            'La lista de Cliente no debe llevar el sufijo de contadores de OpenServBus'
-        );
-    }
-
-    /**
-     * El pipe loadData real de ListVehicle debe añadir el sufijo "||count||total||campo:Etiqueta"
-     * al título de la vista principal, con el selector de campo de sus tres searchFields.
+     * El pipe loadData nativo de BuscadorAcumulado debe añadir el sufijo "||count||total||campo:Etiqueta"
+     * al título de la vista principal de ListVehicle, con el selector de sus tres searchFields.
      */
     public function testPipeLoadDataEnriqueceElTituloDeListVehicle(): void
     {

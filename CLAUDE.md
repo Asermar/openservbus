@@ -93,8 +93,6 @@ régimen `exento`/`recargo` y restan la retención (IRPF). Redondean con `FS_NF0
 ## Init.php — qué registra
 
 - **Siempre**: extensiones de core `Extension\Controller\EditRole` y `EditUser`.
-- **Solo si `BuscadorAcumulado` activo**: `Extension\Controller\ListController` (enriquece títulos de
-  listas, ver abajo).
 - **Solo si `CSVimport` activo**: registra la plantilla manual `Lib\ManualTemplates\KmsManual` para el
   perfil `FuelKm` (importación de repostajes por CSV).
 - **Mantenimiento**: `WorkQueue::addWorker('RecalculateFuelKmStats', 'OpenServBus.recalculate-fuelkm-stats')`
@@ -119,13 +117,18 @@ Añadir un job = `Maintenance::addJob([...])` en el `Init` + un Worker que escuc
 
 ## Integraciones opcionales
 
-- **BuscadorAcumulado** (`Extension\Controller\ListController` + `Lib\AccumulatedSearchTitle`): añade a
-  los listados **propios** el sufijo `||count||total||campo:Etiqueta...` que ese plugin usa para los
-  contadores "X de Y" y el selector por campo (él solo lo genera para sus vistas y omite las standalone).
-  **Restricción del sistema de extensiones**: el core registra por Reflection **todos** los métodos de la
-  clase de extensión como pipes y los invoca sin argumentos → la clase de extensión **solo** puede tener
-  métodos que devuelvan `Closure`; toda la lógica auxiliar (y unit-testeable) vive en `Lib\AccumulatedSearchTitle`.
-  `shouldEnrich()` filtra: solo modelos de OpenServBus, no `JoinModel`, y no re-enriquece.
+- **BuscadorAcumulado** (mín. **2.64**): a partir de esa versión el enriquecido de títulos
+  (`||count||total||campo:Etiqueta...` para los contadores "X de Y" y el selector por campo) lo hace el
+  propio plugin **de forma nativa** para TODA vista con `searchFields` (JoinModel incluido), y su
+  `BAFields::build` ya ofrece los `searchFields` **sin columna visible** etiquetándolos con
+  `Tools::trans(<campo>)`. OpenServBus **ya no aporta extensión ni helper propios** (se eliminaron la
+  antigua `Extension\Controller\ListController` y `Lib\AccumulatedSearchTitle`, que compensaban el hueco
+  de versiones ≤2.51). Solo quedan dos ajustes propios que sacan partido del enriquecido nativo:
+  - `ListFuelKm` (con CSVimport) va sobre `Model/Join/FuelKm` y declara searchFields prefijados
+    `d.nombre_conductor`/`v.nombre_vehiculo`/`fp.nombre_surtidor` → aparecen en el selector; sus etiquetas
+    se traducen con las claves `nombre_conductor`/`nombre_vehiculo`/`nombre_surtidor` en `Translation/`.
+  - `ListEmployeeAttendanceManagement` y `...Yn` declaran `addSearchFields(['observaciones'])` para que el
+    bloque nativo (gated en `!empty(searchFields)`) siga pintando el contador en esas vistas.
 - **CSVimport** (`Lib\ManualTemplates\KmsManual`): importa repostajes a `FuelKm`. Resuelve `idvehicle`
   desde `cod_vehicle` (pad a 3) e `iddriver` desde `cod_employee` (pad a 4 → `EmployeeOpen` → `Driver`);
   calcula `pvp_litro = precio/litros`; deduplica por `fecha+hora+idvehicle` según modo INSERT/UPDATE.
@@ -167,7 +170,8 @@ Antes vivían en `Init` y se reintentaban en cada `update()`; migradas a clases 
 
 Suites por combinación de plugins, cada una con su `install-plugins.txt`: `main/`, `with-csvimport/`,
 `with-buscadoracumulado/`, `with-csvimport-buscadoracumulado/`. Comprueban presencia/ausencia de las
-integraciones (p. ej. que el título se enriquece solo con BuscadorAcumulado, que el Join no se enriquece).
+integraciones (p. ej. que con BuscadorAcumulado 2.64 el título se enriquece de forma nativa en toda vista
+con `searchFields`, JoinModel de `ListFuelKm` incluido, y que las traducciones del selector existen).
 
 ## Convenciones y gotchas
 
