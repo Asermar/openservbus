@@ -71,6 +71,7 @@ class ListHelper extends ListController
     protected function createViewHelper($viewName = 'ListHelper'): void
     {
         $this->addView($viewName, 'Helper', 'monitors', 'fa-solid fa-user-graduate');
+        $this->addSearchFields($viewName, ['observaciones']);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
         // Filtros

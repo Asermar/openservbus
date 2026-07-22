@@ -61,6 +61,7 @@ class ListFuelKm extends ListController
     protected function createViewFuelKm($viewName = 'ListFuelKm'): void
     {
         $this->addView($viewName, 'FuelKm', 'refueling-kms', 'fa-solid fa-gas-pump');
+        $this->addSearchFields($viewName, ['observaciones']);
         $this->addOrderBy($viewName, ['fecha'], 'Fecha', 1);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
@@ -107,6 +108,11 @@ class ListFuelKm extends ListController
         // sustituimos el modelo de la vista por el Join para habilitar la búsqueda
         // en las tablas relacionadas (conductor, vehículo y surtidor)
         $this->views[$viewName]->model = new FuelKmJoin();
+
+        // la vista base declaró searchFields propios (observaciones, sin prefijo); al
+        // sustituir el modelo por el Join partimos de cero para usar solo los campos
+        // prefijados del Join y no arrastrar un 'observaciones' sin alias al WHERE.
+        $this->listView($viewName)->searchFields = [];
 
         $surtidores = $this->codeModel->all('fuel_pumps', 'idfuel_pump', 'nombre');
         $this->listView($viewName)

@@ -181,6 +181,38 @@ final class AllListViewsEnrichedTest extends TestCase
         );
     }
 
+    /**
+     * Fase 1 (categoría A): vistas de detalle que NO declaraban searchFields y, bajo el enriquecido
+     * nativo de 2.64, habrían perdido el contador. Se les añadió addSearchFields(['observaciones'])
+     * (o ['nombre','observaciones']) en su controlador; aquí se verifica que cada una recibe ahora
+     * el bloque de contadores y ofrece "observaciones" en el selector de campo. Nota: la vista
+     * ListFuelKm solo lleva 'observaciones' cuando CSVimport NO está activo (este escenario); con
+     * CSVimport pasa a JoinModel (cubierto por JoinModelEnrichedTest).
+     */
+    public function testVistasDeDetalleAdaptadasRecibenContadorYselector(): void
+    {
+        $casos = [
+            ['ListHelper', 'ListHelper'],
+            ['ListService', 'ListServiceValuation'],
+            ['ListServiceRegular', 'ListServiceRegularCombinationServ'],
+            ['ListServiceRegular', 'ListServiceRegularItinerary'],
+            ['ListServiceRegular', 'ListServiceRegularPeriod'],
+            ['ListServiceRegular', 'ListServiceRegularValuation'],
+            ['ListFuelKm', 'ListFuelKm'],
+        ];
+
+        foreach ($casos as [$controllerName, $viewName]) {
+            $controller = $this->createController($controllerName);
+            $this->assertArrayHasKey($viewName, $controller->views, "Falta la vista $viewName en $controllerName");
+            $view = $controller->views[$viewName];
+            $view->count = 1;
+
+            $this->assertTrue($controller->pipeFalse('loadData', $viewName, $view));
+            $this->assertStringContainsString('||1||', (string)$view->title, "$viewName debe llevar el bloque de contadores");
+            $this->assertStringContainsString('||observaciones:', (string)$view->title, "$viewName debe ofrecer 'observaciones' en el selector");
+        }
+    }
+
     /** Instancia un controlador List* de OpenServBus, le fija permisos y puebla $controller->views. */
     private function createController(string $controllerName)
     {
