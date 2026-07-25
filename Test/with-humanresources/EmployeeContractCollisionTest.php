@@ -99,15 +99,20 @@ final class EmployeeContractCollisionTest extends TestCase
         $this->assertSame('EmployeeContract', (new $rrhh('EditEmployeeContract'))->getModelClassName());
         $this->assertSame('OsbEmployeeContract', (new $osb('EditOsbEmployeeContract'))->getModelClassName());
 
-        // y la XMLView desplegada es la del plugin dueño de cada página
-        $this->assertFileEquals(
-            FS_FOLDER . '/Plugins/HumanResources/XMLView/EditEmployeeContract.xml',
-            FS_FOLDER . '/Dinamic/XMLView/EditEmployeeContract.xml',
+        // Y la XMLView desplegada es la del plugin dueño de cada página. No se comparan bytes
+        // con el original: PluginsDeploy::linkXMLFile no copia el fichero, lo reserializa con
+        // SimpleXML (para fusionar las extensiones), así que el resultado nunca es idéntico.
+        // Se comparan los campos, que además son los del fallo: startdate en HumanResources y
+        // fecha_inicio en OpenServBus.
+        $this->assertSame(
+            ['enddate', 'startdate'],
+            $this->fieldsOfView('EditEmployeeContract', ['startdate', 'enddate', 'fecha_inicio', 'fecha_fin']),
             'La XMLView EditEmployeeContract desplegada no es la de HumanResources'
         );
-        $this->assertFileEquals(
-            FS_FOLDER . '/Plugins/OpenServBus/XMLView/EditOsbEmployeeContract.xml',
-            FS_FOLDER . '/Dinamic/XMLView/EditOsbEmployeeContract.xml'
+        $this->assertSame(
+            ['fecha_fin', 'fecha_inicio'],
+            $this->fieldsOfView('EditOsbEmployeeContract', ['startdate', 'enddate', 'fecha_inicio', 'fecha_fin']),
+            'La XMLView EditOsbEmployeeContract desplegada no es la de OpenServBus'
         );
     }
 
@@ -217,6 +222,31 @@ final class EmployeeContractCollisionTest extends TestCase
         $method->invoke($controller);
 
         return $controller;
+    }
+
+    /**
+     * Devuelve, de los campos de $lookFor, cuáles usa la XMLView desplegada (ordenados, para
+     * poder compararlos sin depender del orden en que estén en el XML).
+     */
+    private function fieldsOfView(string $viewName, array $lookFor): array
+    {
+        $path = FS_FOLDER . '/Dinamic/XMLView/' . $viewName . '.xml';
+        $this->assertFileExists($path, 'No se ha desplegado la XMLView ' . $viewName);
+
+        $xml = simplexml_load_file($path);
+        $this->assertNotFalse($xml, 'XMLView ilegible: ' . $path);
+
+        $found = [];
+        foreach ($xml->xpath('//*[@fieldname]') ?: [] as $node) {
+            $fieldName = (string)$node['fieldname'];
+            if (in_array($fieldName, $lookFor, true)) {
+                $found[$fieldName] = $fieldName;
+            }
+        }
+
+        sort($found);
+
+        return $found;
     }
 
     protected function tearDown(): void
