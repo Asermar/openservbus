@@ -122,7 +122,7 @@ final class Init extends InitClass
             'EditDriver',
             'EditEmployeeAttendanceManagement',
             'EditEmployeeAttendanceManagementYn',
-            'EditEmployeeContract',
+            'EditOsbEmployeeContract',
             'EditEmployeeContractType',
             'EditEmployeeDocumentation',
             'EditEmployeeOpen',

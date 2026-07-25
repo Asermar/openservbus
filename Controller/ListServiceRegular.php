@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  * Copyright (C) 2026 Oko Digital Experts, S.L.L. (Okodex)
  * @author Alexis Serafín <alexis@okodex.com>
  *
@@ -119,6 +119,7 @@ class ListServiceRegular extends ListController
     protected function createViewServiceRegularCombinationServ($viewName = 'ListServiceRegularCombinationServ'): void
     {
         $this->addView($viewName, 'ServiceRegularCombinationServ', 'combinations-services', 'fa-solid fa-cogs');
+        $this->addSearchFields($viewName, ['observaciones']);
         $this->addOrderBy($viewName, ['idservice_regular_combination', 'idservice_regular'], 'name', 1);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
@@ -137,6 +138,7 @@ class ListServiceRegular extends ListController
     protected function createViewServiceRegularItinerary($viewName = 'ListServiceRegularItinerary'): void
     {
         $this->addView($viewName, 'ServiceRegularItinerary', 'serv-regulars-itineraries', 'fa-solid fa-road');
+        $this->addSearchFields($viewName, ['observaciones']);
         $this->addOrderBy($viewName, ['idservice_regular', 'orden'], 'by-itinerary', 1);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
@@ -154,6 +156,7 @@ class ListServiceRegular extends ListController
     protected function createViewServiceRegularPeriod($viewName = 'ListServiceRegularPeriod'): void
     {
         $this->addView($viewName, 'ServiceRegularPeriod', 'periods', 'fa-solid fa-calendar-alt');
+        $this->addSearchFields($viewName, ['observaciones']);
         $this->addOrderBy($viewName, ['idservice_regular', 'fecha_desde', 'fecha_hasta', 'hora_desde', 'hora_hasta'], 'by-period', 1);
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 
@@ -178,6 +181,7 @@ class ListServiceRegular extends ListController
     protected function createViewValuations($viewName = 'ListServiceRegularValuation'): void
     {
         $this->addView($viewName, 'ServiceRegularValuation', 'ratings', 'fa-solid fa-dollar-sign');
+        $this->addSearchFields($viewName, ['nombre', 'observaciones']);
 
         $this->views[$viewName]->addOrderBy(['idservice_regular', 'orden'], 'by-rating', 1);
         $this->views[$viewName]->addOrderBy(['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');

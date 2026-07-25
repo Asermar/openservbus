@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  * Copyright (C) 2026 Oko Digital Experts, S.L.L. (Okodex)
  * @author Alexis Serafín <alexis@okodex.com>
  *
@@ -100,6 +100,7 @@ class ListService extends ListController
     protected function createViewServiceValuation($viewName = 'ListServiceValuation'): void
     {
         $this->addView($viewName, 'ServiceValuation', 'ratings', 'fa-solid fa-dollar-sign');
+        $this->addSearchFields($viewName, ['nombre', 'observaciones']);
         $this->views[$viewName]->addOrderBy(['idservice', 'orden'], 'by-rating', 1);
         $this->views[$viewName]->addOrderBy(['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
 

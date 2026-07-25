@@ -123,12 +123,19 @@ Añadir un job = `Maintenance::addJob([...])` en el `Init` + un Worker que escuc
   `BAFields::build` ya ofrece los `searchFields` **sin columna visible** etiquetándolos con
   `Tools::trans(<campo>)`. OpenServBus **ya no aporta extensión ni helper propios** (se eliminaron la
   antigua `Extension\Controller\ListController` y `Lib\AccumulatedSearchTitle`, que compensaban el hueco
-  de versiones ≤2.51). Solo quedan dos ajustes propios que sacan partido del enriquecido nativo:
+  de versiones ≤2.51). **Alcance:** BuscadorAcumulado 2.64 solo extiende `ListController`; las vistas
+  embebidas en `EditController`/`PanelController` (sub-listas de los `Edit*`, `ConfigOpenServBus`) quedan
+  fuera y **no** se enriquecen — no tiene sentido añadirles searchFields por este motivo. Ajustes propios
+  que sacan partido del enriquecido nativo:
   - `ListFuelKm` (con CSVimport) va sobre `Model/Join/FuelKm` y declara searchFields prefijados
     `d.nombre_conductor`/`v.nombre_vehiculo`/`fp.nombre_surtidor` → aparecen en el selector; sus etiquetas
     se traducen con las claves `nombre_conductor`/`nombre_vehiculo`/`nombre_surtidor` en `Translation/`.
-  - `ListEmployeeAttendanceManagement` y `...Yn` declaran `addSearchFields(['observaciones'])` para que el
-    bloque nativo (gated en `!empty(searchFields)`) siga pintando el contador en esas vistas.
+  - Vistas `List*` que no declaraban `searchFields` reciben `addSearchFields([...])` sobre una columna de
+    texto real (normalmente `observaciones`, y `nombre` donde existe) para que el bloque nativo (gated en
+    `!empty(searchFields)`) siga pintando el contador: `ListEmployeeAttendanceManagement`/`...Yn`,
+    `ListHelper`, `ListServiceValuation` y las sub-listas de `ListServiceRegular`
+    (`...CombinationServ`/`...Itinerary`/`...Period`/`...Valuation`); `ListFuelKm` (vista base, sin
+    CSVimport) también, reseteando los searchFields al sustituir el modelo por el Join.
 - **CSVimport** (`Lib\ManualTemplates\KmsManual`): importa repostajes a `FuelKm`. Resuelve `idvehicle`
   desde `cod_vehicle` (pad a 3) e `iddriver` desde `cod_employee` (pad a 4 → `EmployeeOpen` → `Driver`);
   calcula `pvp_litro = precio/litros`; deduplica por `fecha+hora+idvehicle` según modo INSERT/UPDATE.
