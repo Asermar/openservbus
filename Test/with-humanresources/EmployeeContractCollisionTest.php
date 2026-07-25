@@ -59,7 +59,7 @@ final class EmployeeContractCollisionTest extends TestCase
     }
 
     /** Precondición de la suite: sin los dos plugins activos no se prueba nada. */
-    public function testAmbosPluginsActivos(): void
+    public function testAmbosPluginsActivosYEnElOrdenDeProduccion(): void
     {
         $this->assertTrue(
             Plugins::isEnabled('OpenServBus'),
@@ -68,6 +68,20 @@ final class EmployeeContractCollisionTest extends TestCase
         $this->assertTrue(
             Plugins::isEnabled('HumanResources'),
             'Esta suite (Test/with-humanresources) debe ejecutarse con HumanResources activado'
+        );
+
+        // Plugins::enabled() devuelve los nombres ordenados por `order`, y en Dinamic gana el
+        // último. Sin esta comprobación la suite puede pasar en vacío: si OpenServBus cargase
+        // primero, reintroducir la colisión no la haría fallar, porque el nombre repetido se lo
+        // quedaría HumanResources. `order` se asigna al activar (maxOrder() + 1) y persiste, así
+        // que basta con que otra suite haya dejado OpenServBus activo antes para invertirlo.
+        $enabled = Plugins::enabled();
+        $this->assertGreaterThan(
+            array_search('HumanResources', $enabled, true),
+            array_search('OpenServBus', $enabled, true),
+            'OpenServBus debe cargarse DESPUÉS de HumanResources para reproducir producción.'
+            . ' Sincroniza a lista vacía antes de lanzar esta suite (así se reasignan los order).'
+            . ' Orden actual: ' . implode(',', $enabled)
         );
     }
 
