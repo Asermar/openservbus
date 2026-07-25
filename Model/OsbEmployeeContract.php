@@ -1,8 +1,8 @@
 <?php
 /**
  * This file is part of OpenServBus plugin for FacturaScripts
- * Copyright (C) 2021-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
- * Copyright (C) 2021 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
+ * Copyright (C) 2021-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2021-2026 Jerónimo Pedro Sánchez Manzano <socger@gmail.com>
  * Copyright (C) 2026 Oko Digital Experts, S.L.L. (Okodex)
  * @author Alexis Serafín <alexis@okodex.com>
  *
@@ -27,13 +27,19 @@ use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
-class EmployeeContract extends ModelClass
+class OsbEmployeeContract extends ModelClass
 {
     use ModelTrait;
     use OpenServBusModelTrait;
 
     /** @var bool */
     public $activo;
+
+    /** @var string */
+    public $fecha_fin;
+
+    /** @var string */
+    public $fecha_inicio;
 
     /** @var string */
     public $fechaalta;
@@ -43,12 +49,6 @@ class EmployeeContract extends ModelClass
 
     /** @var string */
     public $fechamodificacion;
-
-    /** @var string */
-    public $fecha_fin;
-
-    /** @var string */
-    public $fecha_inicio;
 
     /** @var int */
     public $idemployee;
@@ -146,23 +146,6 @@ class EmployeeContract extends ModelClass
         return parent::url($type, $list . '?activetab=List');
     }
 
-    protected function Actualizar_idempresa_en_employees(): void
-    {
-        // Completamos el campo idempresa de la tabla employee
-        $sql = " UPDATE employees_open "
-            . " SET employees_open.idempresa = ( SELECT IF(employee_contracts.idempresa IS NOT NULL, employee_contracts.idempresa, 0) "
-            . " FROM employee_contracts "
-            . " WHERE employee_contracts.idemployee = " . $this->idemployee . " "
-            . " AND employee_contracts.activo = 1 "
-            . " ORDER BY employee_contracts.idemployee "
-            . " , employee_contracts.fecha_inicio DESC "
-            . " , employee_contracts.fecha_fin DESC "
-            . " LIMIT 1 ) "
-            . " WHERE employees_open.idemployee = " . $this->idemployee . ";";
-
-        static::db()->exec($sql);
-    }
-
     protected function actualizar_campo_activo_enContratos_del_Empleado(): void
     {
         // Buscamos el contrato con fecha_inicio + Fecha_fin más alta
@@ -204,6 +187,23 @@ class EmployeeContract extends ModelClass
                 static::db()->exec($sql);
             }
         }
+    }
+
+    protected function Actualizar_idempresa_en_employees(): void
+    {
+        // Completamos el campo idempresa de la tabla employee
+        $sql = " UPDATE employees_open "
+            . " SET employees_open.idempresa = ( SELECT IF(employee_contracts.idempresa IS NOT NULL, employee_contracts.idempresa, 0) "
+            . " FROM employee_contracts "
+            . " WHERE employee_contracts.idemployee = " . $this->idemployee . " "
+            . " AND employee_contracts.activo = 1 "
+            . " ORDER BY employee_contracts.idemployee "
+            . " , employee_contracts.fecha_inicio DESC "
+            . " , employee_contracts.fecha_fin DESC "
+            . " LIMIT 1 ) "
+            . " WHERE employees_open.idemployee = " . $this->idemployee . ";";
+
+        static::db()->exec($sql);
     }
 
     protected function saveUpdate(array $values = []): bool

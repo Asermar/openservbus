@@ -65,9 +65,9 @@ class ListEmployeeOpen extends ListController
         $this->addFilterSelect($viewName, 'esConductor', 'driver-all', 'driver_yn', $esConductor);
     }
 
-    protected function createViewEmployeeContract($viewName = 'ListEmployeeContract'): void
+    protected function createViewEmployeeContract($viewName = 'ListOsbEmployeeContract'): void
     {
-        $this->addView($viewName, 'EmployeeContract', 'contracts', 'fa-solid fa-file-contract');
+        $this->addView($viewName, 'OsbEmployeeContract', 'contracts', 'fa-solid fa-file-contract');
         $this->addSearchFields($viewName, ['nombre']);
         $this->addOrderBy($viewName, ['fecha_inicio', 'fecha_fin'], 'fstart-fend');
         $this->addOrderBy($viewName, ['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');

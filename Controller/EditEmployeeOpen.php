@@ -51,9 +51,9 @@ class EditEmployeeOpen extends EditController
         $this->setTabsPosition('top');
     }
 
-    protected function createViewEmployeeContract($viewName = 'ListEmployeeContract'): void
+    protected function createViewEmployeeContract($viewName = 'ListOsbEmployeeContract'): void
     {
-        $this->addListView($viewName, 'EmployeeContract', 'contracts-made', 'fa-solid fa-id-badge');
+        $this->addListView($viewName, 'OsbEmployeeContract', 'contracts-made', 'fa-solid fa-id-badge');
         $this->views[$viewName]->addSearchFields(['nombre']);
         $this->views[$viewName]->addOrderBy(['fecha_inicio', 'fecha_fin'], 'fstart-fend');
         $this->views[$viewName]->addOrderBy(['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
@@ -110,7 +110,7 @@ class EditEmployeeOpen extends EditController
         $mvn = $this->getMainViewName();
         switch ($viewName) {
             case 'ListEmployeeDocumentation':
-            case 'ListEmployeeContract':
+            case 'ListOsbEmployeeContract':
             case 'ListEmployeeAttendanceManagementYn':
                 $idemployee = $this->getViewModelValue($mvn, 'idemployee');
                 $where = [Where::column('idemployee', $idemployee)];
