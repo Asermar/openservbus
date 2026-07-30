@@ -102,7 +102,13 @@ class ConfigOpenServBus extends PanelController
 
     protected function createViewMaintenance($viewName = 'maintenance'): void
     {
-        $this->addHtmlView($viewName, 'Maintenance', 'Settings', 'maintenance', 'fa-solid fa-screwdriver-wrench');
+        // La plantilla se llama ConfigOpenServBusMaintenance y NO Maintenance: los
+        // nombres de vista son un espacio GLOBAL --Plugins::deploy() las copia
+        // todas a Dinamic/View/-- así que dos plugins con el mismo nombre de
+        // plantilla se pisan, y gana el que carga más tarde. Pasó con OkoOAuth,
+        // que también tenía View/Maintenance.html.twig y carga después: esta
+        // pestaña mostraba SUS botones en vez de los de OpenServBus.
+        $this->addHtmlView($viewName, 'ConfigOpenServBusMaintenance', 'Settings', 'maintenance', 'fa-solid fa-screwdriver-wrench');
     }
 
     protected function createViews(): void
