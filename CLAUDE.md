@@ -195,3 +195,30 @@ con `searchFields`, JoinModel de `ListFuelKm` incluido, y que las traducciones d
   el `__get` es un fallback y solo se dispara si la propiedad no está inicializada — cuidado al refactorizar.
 - **Traducciones**: `Translation/` cubre muchos idiomas; los mantenidos al día son **es_ES** y **en_EN**
   (el resto arrastra las cadenas antiguas de FacturaScripts).
+
+## Frontera
+
+**Destino:** que el consumo de combustible se mida sobre un **kilometraje fiable**, con el GPS del
+cliente como **fuente de verdad del odómetro** y la entrada manual **validada contra ella**.
+
+**Decidido (ago 2026):** el GPS alimenta **solo la ficha del vehículo**
+(`vehicles.km_actuales` + `vehicles.fecha_km_actuales`). El `km` de cada `FuelKm` **sigue siendo
+manual** —por ahora no se puede obviar—, y lo que aporta el GPS no es sustituir ese dato sino ser la
+referencia contra la que **añadir controles a la entrada manual**. Terminado cuando la ficha se
+actualiza sola desde el GPS y `FuelKm` contrasta el `km` teclado con ella.
+
+Contexto de por qué importa: hoy `fuel_kms.km` es la única medida de distancia, y los informes de
+`documentation/` han acotado su calidad — es la mejor base disponible y aun así pone un techo de
+r = 0,74 a la correlación kilómetros↔litros, con seis vehículos cuyas lecturas mezclan las de otro.
+
+### Pendiente de decidir
+
+- ¿Los controles sobre el `km` teclado **avisan o bloquean**, y con qué tolerancia? — `FuelKm::test()`
+  ya hace las dos cosas en otras validaciones. No es cosmético: un bloqueo estricto contra un
+  odómetro de GPS desactualizado impediría registrar un repostaje real, y un repostaje que no se
+  registra a tiempo ya cuesta declaraciones perdidas
+  (`documentation/informe_ciclos_notificacion_repostajes_2026.md`).
+- niebla: **cómo se integra el GPS.** Qué sistema es, qué interfaz ofrece (API, exportación, push) y
+  con qué frecuencia —de lo que depende la tolerancia de la pregunta anterior—; y **qué vehículos
+  quedan fuera**, porque «casi todos» no es todos y eso decide si el control se puede exigir siempre
+  o solo donde haya GPS. Hoy no hay ni una referencia a GPS en el plugin.
