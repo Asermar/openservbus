@@ -11,6 +11,18 @@ Carlos García / socger, FacturaScripts). Cabeceras nuevas → co-copyright Okod
 > Para desarrollar aquí, apoyarse en los agentes/skills **`fs-dev:*`** (docs-expert para el patrón
 > del framework, backend-developer para modelos/workers, etc.) y que revisen la implementación.
 
+## Dónde se desarrolla
+
+**Cliente prototipo: `Mesa_FS`.** Aquí se desarrolla este plugin. Las demás instalaciones lo
+**consumen** como submódulo fijado a un tag, y son fuente de mejoras y arreglos.
+
+Si lees esto desde otra instalación estás en un consumidor, y eso **no te prohíbe trabajar aquí**:
+a veces el fallo solo se reproduce en este entorno y arreglarlo desde el prototipo sería trabajar a
+ciegas. Lo que se pide es **preguntarlo antes**, no decidirlo en silencio — ni negarse.
+
+Se trabaje donde se trabaje, el arreglo vive en el repo del plugin y hay que **mover el pin** de
+esta instalación para que lo reciba: commitear no basta.
+
 ## Modelo mental
 
 - Modelos propios en `namespace FacturaScripts\Plugins\OpenServBus\Model`, todos `ModelClass` +
