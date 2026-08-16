@@ -5,11 +5,32 @@ servicios **discrecionales**, **regulares** y **regulares especiales**, más su 
 conductores, repostajes) y el RRHH asociado. `version 4.02`, `min_version 2026`, `min_php 8`.
 `compatible = CSVimport, BuscadorAcumulado` (integraciones opcionales; no son `require`). **No tiene
 `require`**: es el plugin del que dependen o al que extienden **BusCanarias** (tour-operadores),
-**OSBCae**, **BusImportacion** y los **AppConnect\***. Licencia **LGPL v3** (open source; procede de
-Carlos García / socger, FacturaScripts). Cabeceras nuevas → co-copyright Okodex/Alexis.
+**OSBCae**, **BusImportacion** y los **AppConnect\***. Licencia **LGPL v3**, y **así se mantiene** (ver
+«Procedencia»). Cabeceras nuevas → co-copyright Okodex/Alexis.
 
 > Para desarrollar aquí, apoyarse en los agentes/skills **`fs-dev:*`** (docs-expert para el patrón
 > del framework, backend-developer para modelos/workers, etc.) y que revisen la implementación.
+
+## Procedencia y tutela
+
+**Es software libre y va a seguir siéndolo.** No es una herencia que se arrastra: es la decisión con
+la que la casa lo mantiene.
+
+- **Nació de Jerónimo Pedro Sánchez Manzano** (`socger`) en 2021, dentro de FacturaScripts. El
+  copyright de los archivos heredados es de **dos** titulares —él y **Carlos Garcia Gomez**, autor de
+  FacturaScripts—, y ninguno de los dos se retira al modificar un archivo.
+- **Jerónimo dejó el proyecto** (su último commit es de jun-2022). Okodex **pagó a Daniel Fernández
+  Giménez**, miembro de FacturaScripts, para mantenerlo al día; su rastro va de nov-2022 a jun-2026.
+- **Desde 2026 la tutela es de Okodex**, que asumió su control y gestión. Por eso el repositorio
+  **se movió de la organización `facturascripts` a `Asermar`** (`git@github.com:Asermar/openservbus.git`)
+  y por eso desde jun-2026 los commits, los hotfixes y las releases salen de aquí.
+
+Está escrito porque explica dos cosas que de otro modo desconciertan: por qué un plugin **LGPL** vive
+en la organización de la casa, y por qué su copyright lleva nombres que no son los de nadie que
+trabaje aquí. Ni lo uno ni lo otro es un descuido.
+
+> Cuidado al atribuir: `socger` es **Jerónimo**, no Carlos. Este documento los tuvo fundidos en una
+> sola persona («Carlos García / socger») hasta ago-2026.
 
 ## Dónde se desarrolla
 
@@ -194,8 +215,10 @@ con `searchFields`, JoinModel de `ListFuelKm` incluido, y que las traducciones d
 
 ## Convenciones y gotchas
 
-- **Cabeceras de autoría**: archivos nuevos → autor Alexis (Okodex) sobre el copyright original de Carlos
-  García / socger; modificados → añadir a Alexis. Licencia LGPL v3 (distinta de BusCanarias, que es EULA).
+- **Cabeceras de autoría**: archivos nuevos → autor Alexis (Okodex) sobre el copyright original, que
+  es de **dos** titulares y no uno —**Jerónimo Pedro Sánchez Manzano** (`socger`, el autor original) y
+  **Carlos Garcia Gomez** (FacturaScripts)—; modificados → añadir a Alexis, **sin quitar a ninguno de
+  los dos**. Licencia LGPL v3 (distinta de BusCanarias, que es EULA).
 - **Soft-delete**: al desactivar cualquier registro hay que dar `motivobaja` o `test()` falla.
 - **Extensiones = solo Closures** (Reflection registra todos los métodos como pipes). Helpers, a `Lib/`.
 - **Rebuild/deploy** tras tocar `Init.php`, modelos o workers (regenera `Dinamic`; si no, el worker/rol
