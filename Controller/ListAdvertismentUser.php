@@ -35,11 +35,6 @@ class ListAdvertismentUser extends ListController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        $this->createAdvertismentUser();
-    }
-
     protected function createAdvertismentUser($viewName = 'ListAdvertismentUser'): void
     {
         $this->addView($viewName, 'AdvertismentUser', 'warnings', 'fa-solid fa-exclamation-triangle');
@@ -60,5 +55,10 @@ class ListAdvertismentUser extends ListController
             ['code' => '0', 'description' => 'active-no'],
         ];
         $this->addFilterSelect($viewName, 'soloActivos', 'active-all', 'activo', $activo);
+    }
+
+    protected function createViews(): void
+    {
+        $this->createAdvertismentUser();
     }
 }

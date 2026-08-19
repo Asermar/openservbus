@@ -39,6 +39,9 @@ class ServiceRegular extends ModelClass
     public $activo;
 
     /** @var string */
+    public $cod_servicio;
+
+    /** @var string */
     public $codcliente;
 
     /** @var string */
@@ -55,9 +58,6 @@ class ServiceRegular extends ModelClass
 
     /** @var bool */
     public $combinadoSN;
-
-    /** @var string */
-    public $cod_servicio;
 
     /** @var bool */
     public $domingo;
@@ -81,10 +81,16 @@ class ServiceRegular extends ModelClass
     public $driver_observaciones_3;
 
     /** @var bool */
-    public $facturar_SN;
+    public $facturar_agrupando;
 
     /** @var bool */
-    public $facturar_agrupando;
+    public $facturar_SN;
+
+    /** @var string */
+    public $fecha_desde;
+
+    /** @var string */
+    public $fecha_hasta;
 
     /** @var string */
     public $fechaalta;
@@ -94,12 +100,6 @@ class ServiceRegular extends ModelClass
 
     /** @var string */
     public $fechamodificacion;
-
-    /** @var string */
-    public $fecha_desde;
-
-    /** @var string */
-    public $fecha_hasta;
 
     /** @var bool */
     public $fuera_del_municipio;

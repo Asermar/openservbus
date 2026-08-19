@@ -32,13 +32,13 @@ class EmployeeDocumentation extends ModelClass
 
     public $activo;
 
+    public $fecha_caducidad;
+
     public $fechaalta;
 
     public $fechabaja;
 
     public $fechamodificacion;
-
-    public $fecha_caducidad;
 
     public $iddocumentation_type;
 

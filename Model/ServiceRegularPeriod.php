@@ -36,6 +36,12 @@ class ServiceRegularPeriod extends ModelClass
     public $activo;
 
     /** @var string */
+    public $fecha_desde;
+
+    /** @var string */
+    public $fecha_hasta;
+
+    /** @var string */
     public $fechaalta;
 
     /** @var string */
@@ -43,12 +49,6 @@ class ServiceRegularPeriod extends ModelClass
 
     /** @var string */
     public $fechamodificacion;
-
-    /** @var string */
-    public $fecha_desde;
-
-    /** @var string */
-    public $fecha_hasta;
 
     /** @var string */
     public $hora_anticipacion;

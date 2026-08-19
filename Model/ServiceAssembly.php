@@ -36,6 +36,9 @@ class ServiceAssembly extends ModelClass
     public $activo;
 
     /** @var string */
+    public $cod_servicio;
+
+    /** @var string */
     public $codcliente;
 
     /** @var string */
@@ -49,9 +52,6 @@ class ServiceAssembly extends ModelClass
 
     /** @var string */
     public $codsubcuenta_km_nacional;
-
-    /** @var string */
-    public $cod_servicio;
 
     /** @var int */
     public $driver_alojamiento_1;
@@ -78,6 +78,12 @@ class ServiceAssembly extends ModelClass
     public $facturar_SN;
 
     /** @var string */
+    public $fecha_desde;
+
+    /** @var string */
+    public $fecha_hasta;
+
+    /** @var string */
     public $fechaalta;
 
     /** @var string */
@@ -86,14 +92,11 @@ class ServiceAssembly extends ModelClass
     /** @var string */
     public $fechamodificacion;
 
-    /** @var string */
-    public $fecha_desde;
-
-    /** @var string */
-    public $fecha_hasta;
-
     /** @var bool */
     public $fuera_del_municipio;
+
+    /** @var string */
+    public $hoja_ruta_cifnif;
 
     /** @var string */
     public $hoja_ruta_contratante;
@@ -109,9 +112,6 @@ class ServiceAssembly extends ModelClass
 
     /** @var string */
     public $hoja_ruta_tipoidfiscal;
-
-    /** @var string */
-    public $hoja_ruta_cifnif;
 
     /** @var string */
     public $hora_anticipacion;
@@ -147,16 +147,16 @@ class ServiceAssembly extends ModelClass
     public $idservice_assembly;
 
     /** @var int */
-    public $idvehicle;
+    public $idservice_regular;
+
+    /** @var int */
+    public $idservice_regular_period;
 
     /** @var int */
     public $idservice_type;
 
     /** @var int */
-    public $idservice_regular;
-
-    /** @var int */
-    public $idservice_regular_period;
+    public $idvehicle;
 
     /** @var int */
     public $idvehicle_type;

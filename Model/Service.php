@@ -33,10 +33,10 @@ class Service extends ModelClass
     use OpenServBusModelTrait;
 
     /** @var bool */
-    public $activo;
+    public $aceptado;
 
     /** @var bool */
-    public $aceptado;
+    public $activo;
 
     /** @var string */
     public $codcliente;
@@ -75,6 +75,12 @@ class Service extends ModelClass
     public $facturar_SN;
 
     /** @var string */
+    public $fecha_desde;
+
+    /** @var string */
+    public $fecha_hasta;
+
+    /** @var string */
     public $fechaalta;
 
     /** @var string */
@@ -83,23 +89,8 @@ class Service extends ModelClass
     /** @var string */
     public $fechamodificacion;
 
-    /** @var string */
-    public $fecha_desde;
-
-    /** @var string */
-    public $fecha_hasta;
-
     /** @var bool */
     public $fuera_del_municipio;
-
-    /** @var string */
-    public $hora_anticipacion;
-
-    /** @var string */
-    public $hora_desde;
-
-    /** @var string */
-    public $hora_hasta;
 
     /** @var string */
     public $hoja_ruta_cifnif;
@@ -119,6 +110,15 @@ class Service extends ModelClass
     /** @var string */
     public $hoja_ruta_tipoidfiscal;
 
+    /** @var string */
+    public $hora_anticipacion;
+
+    /** @var string */
+    public $hora_desde;
+
+    /** @var string */
+    public $hora_hasta;
+
     /** @var int */
     public $iddriver_1;
 
@@ -137,12 +137,6 @@ class Service extends ModelClass
     /** @var int */
     public $idhelper;
 
-    /** @var float */
-    public $importe;
-
-    /** @var float */
-    public $importe_enextranjero;
-
     /** @var int */
     public $idservice;
 
@@ -154,6 +148,12 @@ class Service extends ModelClass
 
     /** @var int */
     public $idvehicle_type;
+
+    /** @var float */
+    public $importe;
+
+    /** @var float */
+    public $importe_enextranjero;
 
     /** @var string */
     public $motivobaja;

@@ -41,10 +41,10 @@ class DocumentationType extends ModelClass
     public $fechabaja;
 
     /** @var string */
-    public $fechamodificacion;
+    public $fechacaducidad_obligarla;
 
     /** @var string */
-    public $fechacaducidad_obligarla;
+    public $fechamodificacion;
 
     /** @var int */
     public $iddocumentation_type;

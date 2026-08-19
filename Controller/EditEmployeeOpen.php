@@ -42,13 +42,18 @@ class EditEmployeeOpen extends EditController
         return $pageData;
     }
 
-    protected function createViews(): void
+    protected function createViewEmployeeAttendanceManagementYn($viewName = 'ListEmployeeAttendanceManagementYn'): void
     {
-        parent::createViews();
-        $this->createViewEmployeeContract();
-        $this->createViewEmployeeAttendanceManagementYn();
-        $this->createViewEmployeeDocumentation();
-        $this->setTabsPosition('top');
+        $this->addListView($viewName, 'EmployeeAttendanceManagementYn', 'are-you-required-to-check-presence', 'fa-solid fa-business-timee');
+        $this->views[$viewName]->addSearchFields(['idemployee', 'nombre']);
+        $this->views[$viewName]->addOrderBy(['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
+
+        // Filtros
+        $activo = [
+            ['code' => '1', 'description' => 'active-yes'],
+            ['code' => '0', 'description' => 'active-no'],
+        ];
+        $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
     }
 
     protected function createViewEmployeeContract($viewName = 'ListOsbEmployeeContract'): void
@@ -70,20 +75,6 @@ class EditEmployeeOpen extends EditController
         $this->views[$viewName]->addFilterAutocomplete('xIdemployee_contract_type', 'contract-type', 'idemployee_contract_type', 'employee_contract_types', 'idemployee_contract_type', 'nombre');
     }
 
-    protected function createViewEmployeeAttendanceManagementYn($viewName = 'ListEmployeeAttendanceManagementYn'): void
-    {
-        $this->addListView($viewName, 'EmployeeAttendanceManagementYn', 'are-you-required-to-check-presence', 'fa-solid fa-business-timee');
-        $this->views[$viewName]->addSearchFields(['idemployee', 'nombre']);
-        $this->views[$viewName]->addOrderBy(['fechaalta', 'fechamodificacion'], 'fhigh-fmodiff');
-
-        // Filtros
-        $activo = [
-            ['code' => '1', 'description' => 'active-yes'],
-            ['code' => '0', 'description' => 'active-no'],
-        ];
-        $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
-    }
-
     protected function createViewEmployeeDocumentation($viewName = 'ListEmployeeDocumentation'): void
     {
         $this->addListView($viewName, 'EmployeeDocumentation', 'documentation', 'fa-regular fa-file-pdf');
@@ -103,6 +94,15 @@ class EditEmployeeOpen extends EditController
         $this->views[$viewName]->addFilterAutocomplete('xIdEmployee', 'employee', 'idemployee', 'employees_open', 'idemployee', 'nombre');
         $this->views[$viewName]->addFilterAutocomplete('xiddocumentation_type', 'documentation - tipo', 'iddocumentation_type', 'documentation_types', 'iddocumentation_type', 'nombre');
         $this->views[$viewName]->addFilterPeriod('porFechaCaducidad', 'date-expiration', 'fecha_caducidad');
+    }
+
+    protected function createViews(): void
+    {
+        parent::createViews();
+        $this->createViewEmployeeContract();
+        $this->createViewEmployeeAttendanceManagementYn();
+        $this->createViewEmployeeDocumentation();
+        $this->setTabsPosition('top');
     }
 
     protected function loadData($viewName, $view)

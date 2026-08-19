@@ -43,15 +43,6 @@ class Vehicle extends ModelClass
     public $configuraciones_especiales;
 
     /** @var string */
-    public $fechaalta;
-
-    /** @var string */
-    public $fechabaja;
-
-    /** @var string */
-    public $fechamodificacion;
-
-    /** @var string */
     public $fecha_km_actuales;
 
     /** @var string */
@@ -59,6 +50,15 @@ class Vehicle extends ModelClass
 
     /** @var string */
     public $fecha_matriculacion_primera;
+
+    /** @var string */
+    public $fechaalta;
+
+    /** @var string */
+    public $fechabaja;
+
+    /** @var string */
+    public $fechamodificacion;
 
     /** @var int */
     public $idcollaborator;
@@ -100,10 +100,10 @@ class Vehicle extends ModelClass
     public $numero_bastidor;
 
     /** @var string */
-    public $observaciones;
+    public $numero_obra;
 
     /** @var string */
-    public $numero_obra;
+    public $observaciones;
 
     /** @var int */
     public $plazas_ofertables;

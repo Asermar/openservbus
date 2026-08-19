@@ -48,13 +48,13 @@ class Tarjeta extends ModelClass
     public $fechamodificacion;
 
     /** @var int */
+    public $iddriver;
+
+    /** @var int */
     public $idemployee;
 
     /** @var int */
     public $idempresa;
-
-    /** @var int */
-    public $iddriver;
 
     /** @var int */
     public $idtarjeta;

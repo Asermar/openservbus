@@ -34,6 +34,9 @@ class VehicleDocumentation extends ModelClass
     public $activo;
 
     /** @var string */
+    public $fecha_caducidad;
+
+    /** @var string */
     public $fechaalta;
 
     /** @var string */
@@ -41,9 +44,6 @@ class VehicleDocumentation extends ModelClass
 
     /** @var string */
     public $fechamodificacion;
-
-    /** @var string */
-    public $fecha_caducidad;
 
     /** @var int */
     public $iddocumentation_type;

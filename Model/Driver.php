@@ -118,6 +118,11 @@ class Driver extends ModelClass
         return parent::install();
     }
 
+    public static function primaryColumn(): string
+    {
+        return 'iddriver';
+    }
+
     public function save(): bool
     {
         if (false === parent::save()) {
@@ -131,11 +136,6 @@ class Driver extends ModelClass
         }
 
         return true;
-    }
-
-    public static function primaryColumn(): string
-    {
-        return 'iddriver';
     }
 
     public static function tableName(): string

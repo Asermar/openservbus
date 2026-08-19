@@ -29,7 +29,6 @@ use FacturaScripts\Plugins\OpenServBus\Model\Helper;
 
 class EditServiceAssembly extends EditController
 {
-
     public function getModelClassName(): string
     {
         return 'ServiceAssembly';
@@ -45,6 +44,12 @@ class EditServiceAssembly extends EditController
         return $pageData;
     }
 
+    protected function createViewContacts(string $viewName = 'EditDireccionContacto'): void
+    {
+        $this->addEditListView($viewName, 'Contacto', 'addresses-and-contacts', 'fa-solid fa-address-book');
+        $this->views[$viewName]->setInLine(true);
+    }
+
     protected function createViews(): void
     {
         parent::createViews();
@@ -52,10 +57,10 @@ class EditServiceAssembly extends EditController
         $this->setTabsPosition('top');
     }
 
-    protected function createViewContacts(string $viewName = 'EditDireccionContacto'): void
+    protected function displayNoneField($viewName, $fieldName): void
     {
-        $this->addEditListView($viewName, 'Contacto', 'addresses-and-contacts', 'fa-solid fa-address-book');
-        $this->views[$viewName]->setInLine(true);
+        $column = $this->views[$viewName]->columnForField($fieldName);
+        $column->display = 'none';
     }
 
     protected function displayOnlyFieldsForDiscretionalServ($viewName): void
@@ -78,12 +83,6 @@ class EditServiceAssembly extends EditController
         $this->displayNoneField($viewName, 'facturar_agrupando_text');
         $this->displayNoneField($viewName, 'salida_desde_nave_text');
         $this->displayNoneField($viewName, 'activo_text');
-    }
-
-    protected function displayNoneField($viewName, $fieldName): void
-    {
-        $column = $this->views[$viewName]->columnForField($fieldName);
-        $column->display = 'none';
     }
 
     protected function loadData($viewName, $view)

@@ -36,11 +36,6 @@ class ListServiceAssembly extends ListController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        $this->createViewAssembly();
-    }
-
     protected function createViewAssembly($viewName = 'ListServiceAssembly'): void
     {
         $this->addView($viewName, 'ServiceAssembly', 'assembly-of-services', 'fa-solid fa-business-time');
@@ -78,6 +73,11 @@ class ListServiceAssembly extends ListController
         $this->addFilterAutocomplete($viewName, 'xIdempresa', 'company', 'idempresa', 'empresas', 'idempresa', 'nombre');
         $this->addFilterAutocomplete($viewName, 'xIdservice', 'service-discretionary', 'idservice', 'services', 'idservice', 'nombre');
         $this->addFilterAutocomplete($viewName, 'xIdserviceRegular', 'service-regular', 'idservice_regular', 'service_regulars', 'idservice_regular', 'nombre');
+    }
+
+    protected function createViews(): void
+    {
+        $this->createViewAssembly();
     }
 
     protected function execPreviousAction($action): bool

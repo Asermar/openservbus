@@ -35,12 +35,6 @@ class ListVehicleDocumentation extends ListController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        $this->createViewVehicleDocumentation();
-        $this->createViewEmployeeDocumentation();
-    }
-
     protected function createViewEmployeeDocumentation($viewName = 'ListEmployeeDocumentation'): void
     {
         $this->addView($viewName, 'EmployeeDocumentation', 'employee', 'fa-solid fa-user');
@@ -60,6 +54,12 @@ class ListVehicleDocumentation extends ListController
         $this->addFilterAutocomplete($viewName, 'xIdEmployee', 'employee', 'idemployee', 'employees_open', 'idemployee', 'nombre');
         $this->addFilterAutocomplete($viewName, 'xiddocumentation_type', 'documentation-type', 'iddocumentation_type', 'documentation_types', 'iddocumentation_type', 'nombre');
         $this->addFilterPeriod($viewName, 'porFechaCaducidad', 'date-expiration', 'fecha_caducidad');
+    }
+
+    protected function createViews(): void
+    {
+        $this->createViewVehicleDocumentation();
+        $this->createViewEmployeeDocumentation();
     }
 
     protected function createViewVehicleDocumentation($viewName = 'ListVehicleDocumentation'): void

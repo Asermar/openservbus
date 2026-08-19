@@ -35,12 +35,6 @@ class ListEmployeeOpen extends ListController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        $this->createViewEmployee();
-        $this->createViewEmployeeContract();
-    }
-
     protected function createViewEmployee($viewName = 'ListEmployeeOpen'): void
     {
         $this->addView($viewName, 'EmployeeOpen', 'employees', 'fa-regular fa-id-card');
@@ -82,5 +76,11 @@ class ListEmployeeOpen extends ListController
         $this->addFilterAutocomplete($viewName, 'xIdEmpresa', 'company', 'idempresa', 'empresas', 'idempresa', 'nombre');
         $this->addFilterAutocomplete($viewName, 'xIdEmployee', 'employee', 'idemployee', 'employees_open', 'idemployee', 'nombre');
         $this->addFilterAutocomplete($viewName, 'xIdemployee_contract_type', 'contract-type', 'idemployee_contract_type', 'employee_contract_types', 'idemployee_contract_type', 'nombre');
+    }
+
+    protected function createViews(): void
+    {
+        $this->createViewEmployee();
+        $this->createViewEmployeeContract();
     }
 }

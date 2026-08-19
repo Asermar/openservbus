@@ -44,15 +44,6 @@ class EditService extends EditController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        parent::createViews();
-        $this->createViewContacts();
-        $this->createViewItineraries();
-        $this->createViewValuations();
-        $this->setTabsPosition('top');
-    }
-
     protected function createViewContacts(string $viewName = 'EditDireccionContacto'): void
     {
         $this->addEditListView($viewName, 'Contacto', 'addresses-and-contacts', 'fa-solid fa-address-book');
@@ -74,6 +65,15 @@ class EditService extends EditController
         $this->views[$viewName]->addFilterSelect('soloActivos', 'active-all', 'activo', $activo);
 
         $this->views[$viewName]->addFilterAutocomplete('xIdservice', 'service-discretionary', 'idservice', 'services', 'idservice', 'nombre');
+    }
+
+    protected function createViews(): void
+    {
+        parent::createViews();
+        $this->createViewContacts();
+        $this->createViewItineraries();
+        $this->createViewValuations();
+        $this->setTabsPosition('top');
     }
 
     protected function createViewValuations($viewName = 'ListServiceValuation'): void

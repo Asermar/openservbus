@@ -45,13 +45,13 @@ class EmployeeOpen extends ModelClass
     public $ciudad;
 
     /** @var string */
+    public $cod_employee;
+
+    /** @var string */
     public $codpais;
 
     /** @var string */
     public $codpostal;
-
-    /** @var string */
-    public $cod_employee;
 
     /** @var string */
     public $direccion;
@@ -63,6 +63,9 @@ class EmployeeOpen extends ModelClass
     public $email;
 
     /** @var string */
+    public $fecha_nacimiento;
+
+    /** @var string */
     public $fechaalta;
 
     /** @var string */
@@ -70,9 +73,6 @@ class EmployeeOpen extends ModelClass
 
     /** @var string */
     public $fechamodificacion;
-
-    /** @var string */
-    public $fecha_nacimiento;
 
     /** @var int */
     public $idemployee;
@@ -105,6 +105,9 @@ class EmployeeOpen extends ModelClass
     public $tipoidfiscal;
 
     /** @var string */
+    public $user_facturascripts_nick;
+
+    /** @var string */
     public $useralta;
 
     /** @var string */
@@ -112,9 +115,6 @@ class EmployeeOpen extends ModelClass
 
     /** @var string */
     public $usermodificacion;
-
-    /** @var string */
-    public $user_facturascripts_nick;
 
     /** @var string */
     public $web;

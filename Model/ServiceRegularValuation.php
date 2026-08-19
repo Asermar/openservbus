@@ -49,10 +49,10 @@ class ServiceRegularValuation extends ModelClass
     public $idservice_regular;
 
     /** @var int */
-    public $idservice_valuation_type;
+    public $idservice_regular_valuation;
 
     /** @var int */
-    public $idservice_regular_valuation;
+    public $idservice_valuation_type;
 
     /** @var float */
     public $importe;

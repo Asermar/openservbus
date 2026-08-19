@@ -36,11 +36,6 @@ class ListDriver extends ListController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        $this->createViewDriver();
-    }
-
     protected function createViewDriver($viewName = 'ListDriver'): void
     {
         $this->addView($viewName, 'Driver', 'drivers', 'fa-solid fa-user-astronaut');
@@ -63,5 +58,10 @@ class ListDriver extends ListController
                 ['label' => 'Empleados sólo', 'where' => [Where::column('idemployee', '0', '>')]]
             ]
         );
+    }
+
+    protected function createViews(): void
+    {
+        $this->createViewDriver();
     }
 }

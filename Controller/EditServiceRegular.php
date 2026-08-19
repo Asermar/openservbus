@@ -44,23 +44,6 @@ class EditServiceRegular extends EditController
         return $pageData;
     }
 
-    protected function createViews(): void
-    {
-        parent::createViews();
-        $this->createViewContacts();
-        $this->createViewPeriods();
-        $this->createViewItineraries();
-        $this->createViewCombinationServs();
-        $this->createViewValuations();
-        $this->setTabsPosition('top');
-    }
-
-    protected function createViewContacts(string $viewName = 'EditDireccionContacto'): void
-    {
-        $this->addEditListView($viewName, 'Contacto', 'addresses-and-contacts', 'fa-solid fa-address-book');
-        $this->views[$viewName]->setInLine(true);
-    }
-
     protected function createViewCombinationServs($viewName = 'ListServiceRegularCombinationServ'): void
     {
         $this->addListView($viewName, 'ServiceRegularCombinationServ', 'combinations', 'fa-solid fa-briefcase');
@@ -77,6 +60,12 @@ class EditServiceRegular extends EditController
         $this->views[$viewName]->addFilterAutocomplete('xIdVehicle', 'vehicle', 'idvehicle', 'vehicles', 'idvehicle', 'nombre');
         $this->views[$viewName]->addFilterAutocomplete('xIdVehicle', 'vehicle', 'idvehicle', 'vehicles', 'idvehicle', 'nombre');
         $this->views[$viewName]->addFilterAutocomplete('xIdservice_regular_combination', 'combination-service', 'idservice_regular_combination', 'service_regular_combinations', 'idservice_regular_combination', 'nombre');
+    }
+
+    protected function createViewContacts(string $viewName = 'EditDireccionContacto'): void
+    {
+        $this->addEditListView($viewName, 'Contacto', 'addresses-and-contacts', 'fa-solid fa-address-book');
+        $this->views[$viewName]->setInLine(true);
     }
 
     protected function createViewItineraries($viewName = 'ListServiceRegularItinerary'): void
@@ -118,6 +107,17 @@ class EditServiceRegular extends EditController
         $this->views[$viewName]->addFilterAutocomplete('xIdservice_regular', 'regular-service', 'idservice_regular', 'service_regulars', 'idservice_regular', 'nombre');
         $this->views[$viewName]->addFilterPeriod('porFechaInicio', 'date-start', 'fecha_desde');
         $this->views[$viewName]->addFilterPeriod('porFechaFin', 'date-end', 'fecha_hasta');
+    }
+
+    protected function createViews(): void
+    {
+        parent::createViews();
+        $this->createViewContacts();
+        $this->createViewPeriods();
+        $this->createViewItineraries();
+        $this->createViewCombinationServs();
+        $this->createViewValuations();
+        $this->setTabsPosition('top');
     }
 
     protected function createViewValuations($viewName = 'ListServiceRegularValuation'): void
