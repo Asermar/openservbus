@@ -256,4 +256,9 @@ r = 0,74 a la correlación kilómetros↔litros, con seis vehículos cuyas lectu
 - niebla: **cómo se integra el GPS.** Qué sistema es, qué interfaz ofrece (API, exportación, push) y
   con qué frecuencia —de lo que depende la tolerancia de la pregunta anterior—; y **qué vehículos
   quedan fuera**, porque «casi todos» no es todos y eso decide si el control se puede exigir siempre
-  o solo donde haya GPS. Hoy no hay ni una referencia a GPS en el plugin.
+  o solo donde haya GPS. Hoy no hay ni una referencia a GPS en el plugin. El sistema ya se sabe: es
+  4GFlota (API "Acceso4"), con su mapa de endpoints, autenticación y límites de tasa levantado en la
+  nota **«Mapa de la API de 4GFlota»** del vault (proyecto OkodexBus) — pero el mapa deja explícito
+  que ningún endpoint expone un odómetro directo y varios puntos clave (semántica de `Distance`,
+  campo de matrícula, zona horaria) están sin verificar por falta de credenciales reales. La niebla
+  sigue abierta: ese mapa informa el diseño, no lo decide.
